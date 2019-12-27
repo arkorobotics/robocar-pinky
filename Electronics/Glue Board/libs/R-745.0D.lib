@@ -1,0 +1,36 @@
+EESchema-LIBRARY Version 2.3
+#encoding utf-8
+#(c) SnapEDA 2016 (snapeda.com)
+#This work is licensed under a Creative Commons Attribution-ShareAlike 4.0 International License (CC BY-SA) with Design Exception 1.0
+#
+# R-745.0D
+#
+DEF R-745.0D PS 0 40 Y Y 1 L N
+F0 "PS" -500 350 50 H V L BNN
+F1 "R-745.0D" -500 -400 50 H V L BNN
+F2 "CONV_R-745.0D" 0 0 50 H I L BNN
+F3 "Manufacturer Recommendations" 0 0 50 H I L BNN
+F4 "9.10mm" 0 0 50 H I L BNN
+F5 "RECOM" 0 0 50 H I L BNN
+F6 "5" 0 0 50 H I L BNN
+DRAW
+P 2 0 0 10 -500 300 -500 -300 N
+P 2 0 0 10 -500 -300 500 -300 N
+P 2 0 0 10 500 -300 500 300 N
+P 2 0 0 10 500 300 -500 300 N
+X VIN 2 -700 200 200 R 40 40 0 0 I 
+X VIN 3 -700 200 200 R 40 40 0 0 I 
+X VIN 4 -700 200 200 R 40 40 0 0 I 
+X VOUT 9 700 200 200 L 40 40 0 0 O 
+X VOUT 10 700 200 200 L 40 40 0 0 O 
+X VOUT 11 700 200 200 L 40 40 0 0 O 
+X GND 5 700 -200 200 L 40 40 0 0 W 
+X GND 6 700 -200 200 L 40 40 0 0 W 
+X GND 7 700 -200 200 L 40 40 0 0 W 
+X GND 8 700 -200 200 L 40 40 0 0 W 
+X ~ON/OFF~ 1 -700 0 200 R 40 40 0 0 I 
+X VADJ 12 700 0 200 L 40 40 0 0 P 
+ENDDRAW
+ENDDEF
+#
+# End Library

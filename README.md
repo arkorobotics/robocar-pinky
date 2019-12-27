@@ -18,6 +18,8 @@ SainSmart IMX219 Camera Module | $29.99  | [Amazon](https://www.amazon.com/gp/pr
 Part | Cost  |  Link
 ------------ | ------------- | -------------
 NVIDIA Jetson Nano Developer Kit | $98.98 | [Amazon](https://www.amazon.com/gp/product/B07PZHBDKT/)
+WiFi Module | TBD | TBD
+Fan | TBD | TBD
 
 ### Hardware Interface Board
 *** Link to GitHub coming soon ***
