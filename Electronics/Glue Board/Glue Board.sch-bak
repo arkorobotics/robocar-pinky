@@ -14,25 +14,25 @@ Comment3 ""
 Comment4 ""
 $EndDescr
 $Sheet
-S 11000 5800 3100 1750
+S 1000 1000 3000 1500
 U 5E05834F
 F0 "Power System" 50
 F1 "Power_System.sch" 50
 $EndSheet
 $Sheet
-S 11000 3500 3000 1750
+S 1000 5000 3000 1500
 U 5E058475
 F0 "Actuators" 50
 F1 "Actuators.sch" 50
 $EndSheet
 $Sheet
-S 11000 1500 3000 1450
+S 1000 3000 3000 1500
 U 5E058596
 F0 "Sensors" 50
 F1 "Sensors.sch" 50
 $EndSheet
 $Sheet
-S 6700 1450 3100 1500
+S 4500 1000 3000 1500
 U 5E0731B8
 F0 "Nano Interface" 50
 F1 "Nano_Interface.sch" 50
