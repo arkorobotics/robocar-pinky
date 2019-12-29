@@ -4,9 +4,9 @@ EELAYER END
 $Descr B 17000 11000
 encoding utf-8
 Sheet 5 5
-Title ""
-Date ""
-Rev ""
+Title "Robocar, Pinky, Nano Interface"
+Date "2019-12-28"
+Rev "A"
 Comp ""
 Comment1 ""
 Comment2 ""
@@ -21,6 +21,7 @@ F 0 "J4" H 8350 5517 50  0000 C CNN
 F 1 "Conn_02x06_Odd_Even" H 8350 5426 50  0000 C CNN
 F 2 "Connector_PinHeader_2.54mm:PinHeader_2x06_P2.54mm_Vertical" H 8300 5100 50  0001 C CNN
 F 3 "~" H 8300 5100 50  0001 C CNN
+F 4 "67997-112HLF" H 8300 5100 50  0001 C CNN "MPN"
 	1    8300 5100
 	1    0    0    -1  
 $EndComp

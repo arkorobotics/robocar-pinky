@@ -4,9 +4,9 @@ EELAYER END
 $Descr B 17000 11000
 encoding utf-8
 Sheet 2 5
-Title ""
-Date ""
-Rev ""
+Title "Robocar, Pinky, Power System"
+Date "2019-12-28"
+Rev "A"
 Comp ""
 Comment1 ""
 Comment2 ""
@@ -491,11 +491,11 @@ Wire Wire Line
 	11100 3350 11200 3350
 Wire Wire Line
 	11200 3350 11200 3450
-Text Notes 2350 2200 0    100  ~ 0
+Text Notes 2450 2250 0    100  ~ 0
 LOGIC\nGSE\nINPUT
-Text Notes 2350 5200 0    100  ~ 0
+Text Notes 2450 5200 0    100  ~ 0
 LOGIC\nBATTERY\nINPUT
-Text Notes 13800 7050 0    100  ~ 0
+Text Notes 13800 7000 0    100  ~ 0
 MOTOR\nBUS
 Text Notes 13800 3300 0    100  ~ 0
 LOGIC\nBUS

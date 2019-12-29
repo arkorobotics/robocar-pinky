@@ -4,9 +4,9 @@ EELAYER END
 $Descr B 17000 11000
 encoding utf-8
 Sheet 2 5
-Title ""
-Date ""
-Rev ""
+Title "Robocar, Pinky, Power System"
+Date "2019-12-28"
+Rev "A"
 Comp ""
 Comment1 ""
 Comment2 ""
@@ -33,6 +33,7 @@ F 0 "J2" H 3457 2375 50  0000 C CNN
 F 1 "Barrel_Jack" H 3457 2284 50  0000 C CNN
 F 2 "Connector_BarrelJack:BarrelJack_Horizontal" H 3450 2010 50  0001 C CNN
 F 3 "~" H 3450 2010 50  0001 C CNN
+F 4 "PJ-102B" H 3400 2050 50  0001 C CNN "MPN"
 	1    3400 2050
 	1    0    0    -1  
 $EndComp
@@ -44,6 +45,7 @@ F 0 "J1" H 3350 4800 50  0000 C CNN
 F 1 "Conn_01x02_Male" H 3650 4900 50  0000 C CNN
 F 2 "Connector_AMASS:AMASS_XT30PW-M_1x02_P2.50mm_Horizontal" H 3350 5100 50  0001 C CNN
 F 3 "~" H 3350 5100 50  0001 C CNN
+F 4 "XT30PW-M" H 3350 5100 50  0001 C CNN "MPN"
 	1    3350 5100
 	1    0    0    1   
 $EndComp
@@ -491,11 +493,11 @@ Wire Wire Line
 	11100 3350 11200 3350
 Wire Wire Line
 	11200 3350 11200 3450
-Text Notes 2350 2200 0    100  ~ 0
+Text Notes 2450 2250 0    100  ~ 0
 LOGIC\nGSE\nINPUT
-Text Notes 2350 5200 0    100  ~ 0
+Text Notes 2450 5200 0    100  ~ 0
 LOGIC\nBATTERY\nINPUT
-Text Notes 13800 7050 0    100  ~ 0
+Text Notes 13800 7000 0    100  ~ 0
 MOTOR\nBUS
 Text Notes 13800 3300 0    100  ~ 0
 LOGIC\nBUS
@@ -624,6 +626,7 @@ F 0 "J3" H 3350 7300 50  0000 C CNN
 F 1 "Conn_01x02_Male" H 3650 7400 50  0000 C CNN
 F 2 "Connector_AMASS:AMASS_XT30PW-M_1x02_P2.50mm_Horizontal" H 3350 7600 50  0001 C CNN
 F 3 "~" H 3350 7600 50  0001 C CNN
+F 4 "XT30PW-M" H 3350 7600 50  0001 C CNN "MPN"
 	1    3350 7600
 	1    0    0    1   
 $EndComp

@@ -4,9 +4,9 @@ EELAYER END
 $Descr B 17000 11000
 encoding utf-8
 Sheet 1 5
-Title ""
-Date ""
-Rev ""
+Title "Robocar, Pinky, Glue Board"
+Date "2019-12-28"
+Rev "A"
 Comp ""
 Comment1 ""
 Comment2 ""
