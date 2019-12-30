@@ -1,4 +1,5 @@
 (sym_lib_table
   (lib (name R-745.0D)(type Legacy)(uri ${KIPRJMOD}/libs/R-745.0D.lib)(options "")(descr ""))
   (lib (name TPS2121RUXR)(type Legacy)(uri ${KIPRJMOD}/libs/TPS2121RUXR.lib)(options "")(descr ""))
+  (lib (name AMC1301DWVR)(type Legacy)(uri ${KIPRJMOD}/libs/AMC1301DWVR.lib)(options "")(descr ""))
 )
