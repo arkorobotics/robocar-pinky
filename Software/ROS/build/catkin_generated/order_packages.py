@@ -2,4 +2,4 @@
 source_root_dir = "/home/robocar/robocar-pinky/Software/ROS/src"
 whitelisted_packages = "".split(';') if "" != "" else []
 blacklisted_packages = "".split(';') if "" != "" else []
-underlay_workspaces = "/opt/ros/melodic".split(';') if "/opt/ros/melodic" != "" else []
+underlay_workspaces = "/home/robocar/robocar-pinky/Software/ROS/devel;/opt/ros/melodic".split(';') if "/home/robocar/robocar-pinky/Software/ROS/devel;/opt/ros/melodic" != "" else []

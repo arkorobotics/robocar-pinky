@@ -39,7 +39,8 @@ find_package(OpenCV REQUIRED)
 include_directories(
     include
     ${catkin_INCLUDE_DIRS}
-    ${OpenCV_INCLUDE_DIRS}
+#  ${OpenCV_INCLUDE_DIRS}
+#  Use the latest full build
     /usr/local/include/opencv4
 )
 

@@ -92,6 +92,7 @@ set(CMAKE_MAKEFILE_DEPENDS
   "/opt/ros/melodic/share/class_loader/cmake/class_loaderConfig.cmake"
   "/opt/ros/melodic/share/cpp_common/cmake/cpp_commonConfig-version.cmake"
   "/opt/ros/melodic/share/cpp_common/cmake/cpp_commonConfig.cmake"
+  "/opt/ros/melodic/share/dynamic_reconfigure/cmake/../cmake/setup_custom_pythonpath.sh.in"
   "/opt/ros/melodic/share/dynamic_reconfigure/cmake/dynamic_reconfigure-extras.cmake"
   "/opt/ros/melodic/share/dynamic_reconfigure/cmake/dynamic_reconfigure-macros.cmake"
   "/opt/ros/melodic/share/dynamic_reconfigure/cmake/dynamic_reconfigure-msg-extras.cmake"

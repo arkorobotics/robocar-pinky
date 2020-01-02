@@ -652,9 +652,14 @@ private:
 
         if( alg == STEREO_BM )
         {
+ROS_INFO_ONCE("Success, 0.1");
+ROS_INFO_ONCE("Pre Filter Type: %i", state.preFilterType);
+ROS_INFO_ONCE("Current Pre Filter: %i", bm->getPreFilterType());
             // pre-filter
             bm->setPreFilterType(state.preFilterType);
+ROS_INFO_ONCE("Success, 0.2");
             bm->setPreFilterSize(state.preFilterSize);
+ROS_INFO_ONCE("Success, 0.3");
             bm->setPreFilterCap(state.preFilterCap);
             bm->setTextureThreshold(state.textureThreshold);
             bm->setUniquenessRatio(state.uniquenessRatio);
@@ -809,14 +814,15 @@ private:
 
             /****************** Rectification *****************/
             cv::cvtColor(left_raw, left_rgb, cv::COLOR_BayerGR2RGB);
+
             cv::cvtColor(right_raw, right_mono, cv::COLOR_BayerGR2GRAY);
 
             Rectification(left_rgb, right_mono, map11, map12, map21, map22, left_rect_color, right_rect_mono);
             cv::cvtColor(left_rect_color, left_rect_mono, cv::COLOR_BGR2GRAY);
-
+ROS_INFO_ONCE("Success, 0");
             // STEREO_BM=0, STEREO_SGBM=1, STEREO_HH=2, STEREO_3WAY=3, STEREO_HH4=4
             stereoMatch(left_rect_mono, right_rect_mono, disp16, state.mode);
-
+ROS_INFO_ONCE("Success, 1");
             // depth
             cv::Mat disp32;
             disp16.convertTo(disp32, CV_32F, 1./16);
