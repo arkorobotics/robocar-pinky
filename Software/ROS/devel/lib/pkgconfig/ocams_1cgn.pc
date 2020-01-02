@@ -1,0 +1,8 @@
+prefix=/home/robocar/robocar-pinky/Software/ROS/devel
+
+Name: ocams_1cgn
+Description: Description of ocams_1cgn
+Version: 0.0.2
+Cflags: -I/home/robocar/robocar-pinky/Software/ROS/devel/include -I/home/robocar/robocar-pinky/Software/ROS/src/ocams_1cgn/include
+Libs: -L/home/robocar/robocar-pinky/Software/ROS/devel/lib 
+Requires: roscpp std_msgs image_transport image_geometry camera_info_manager sensor_msgs tf dynamic_reconfigure

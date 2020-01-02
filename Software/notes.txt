@@ -1,0 +1,107 @@
+1. Install nano: sudo apt install nano
+
+2. Setup git using github account
+
+3. Checkout robocar-pinky repo
+	$ git clone git@github.com:arkorobotics/robocar-pinky.git
+
+4. Setup fan to autorun on boot: 
+	$ sudo nano /etc/rc.local
+	$ sudo chmod +x /etc/rc.local
+	Add:
+		sh -c 'echo 64 > /sys/devices/pwm-fan/target_pwm'
+
+5. Add/Install ROS (Melodic): http://wiki.ros.org/melodic/Installation/Ubuntu
+
+6. Install Stereo Camera Board Libraries:
+	$ sudo apt install libv4l-dev libudev-dev ros-melodic-rtabmap*
+	$ sudo apt install ros-melodic-image-geometry ros-melodic-cv-camera
+	$ sudo apt-get install libcanberra-gtk-module
+	$ cd /usr/include
+	$ sudo ln -s opencv4 opencv
+
+7. Configure Virtual COM Port for IMU:
+	$ sudo touch /etc/udev/rules.d/99-ttyacms.rules
+	$ sudo nano /etc/udev/rules.d/99-ttyacms.rules
+	Add:
+		ATTRS{idVendor}=="04b4" ATTRS{idProduct}=="00f9", MODE="0666",
+		ENV{ID_MM_DEVICE_IGNORE}="1"
+		ATTRS{idVendor}=="04b4" ATTRS{idProduct}=="00f8", MODE="0666",
+		ENV{ID_MM_DEVICE_IGNORE}="1"
+	$ sudo udevadm control –R
+
+8. Remove the pesky chromium desktop icon: 
+	$ rm /etc/xdg/autostart/nvchrome.sh
+
+9. Note:
+	If you connect both the cameras (mono [mipi] and stereo [usb3]), during boot the 
+	operating system will initalize the mono camera first as /dev/video0 and the 
+	stereo camera second as /dev/video1.
+
+10. Run a simple stereo camera test:
+	$ cd /home/robocar/robocar-pinky/Software/Sensor_Test/oCam/Example/oCamS_Linux_ParameterControl_Example
+	$ make
+	$ ./oCamS_Linux_ParameterControl_Example
+
+11. Set env to use to python3
+	$ nano ~/.bashrc
+	Add:
+		alias python=python3
+	$ ROS_PYTHON_VERSION=3
+
+12. Install pip
+	$ sudo apt install python3-pip
+
+13. Install ros/catkin_make tools:
+	$ pip3 install -U rosdep rosinstall_generator wstool rosinstall six vcstools
+
+14. Attempting to run SLAM example, but it requires setting up catkin_make
+	$ mkdir -p ~/catkin_ws/src
+	$ cd ~/catkin
+	$ catkin_make
+	This fails...
+
+15. Reinstall catkin for some unknown reason:
+        $ sudo apt-get install --reinstall ros-melodic-catkin
+
+16. Clean up catkin workspace
+	$ rm ~/catkin/src
+	$ cd ~/catkin
+	$ catkin_make
+	It works!
+
+17. Download and test oCamS_ROS_Package
+	$ sudo apt-get install libv4l-dev libudev-dev ros-kinetic-rtabmap*
+	$ cd YOUR_WORKING_DIRECTORY (ex. $ cd ~/catkin_ws/src/)
+	$ svn export https://github.com/withrobot/oCamS/trunk/Software/oCamS_ROS_Package/ocams_1cgn
+	$ chmod +x /home/robocar/catkin_ws/src/ocams_1cgn/cfg/cam.cfg
+	$ catkin_make
+	Fails to build oCamS ROS package because opencv contrib extra packages are not installed
+
+18. Build/Install opencv with opencv_contrib
+	Follow instructions here: https://docs.opencv.org/master/d7/d9f/tutorial_linux_install.html
+		1. Download and build source
+			$ cd ~/<my_working_directory>
+			$ git clone https://github.com/opencv/opencv.git
+			$ git clone https://github.com/opencv/opencv_contrib.git
+			$ cd ~/opencv
+			$ mkdir build
+			$ cd build
+			$ cmake -DOPENCV_EXTRA_MODULES_PATH=<opencv_contrib>/modules <opencv_source_directory>
+			$ make -j5
+
+19. Download the latest oCamS_ROS_Package from https://github.com/withrobot/oCamS/tree/master/Software/oCamS_ROS_Package
+	Copy 'ocams_1cgn' to ~/catkin_ws/src
+	$ chmod +x /home/robocar/catkin_ws/src/ocams_1cgn/cfg/cam.cfg
+	Add "/usr/local/include/opencv4" to CMakeLists.txt in ocams_1cgn
+	Modify the oCamS.cpp to use new cv::ColorConversionCodes in opencv4
+	
+	Run it:
+	$ source devel/setup.bash
+	$ roslaunch ocams_1cgn ocams_ros.launch
+	Runs then crashes
+
+	Making a copy to commit to git in the meantime... need to save the state of things
+	Migrated everything from ~/catkin_ws to ~/robocar-pinky/Software/ROS/
+
+

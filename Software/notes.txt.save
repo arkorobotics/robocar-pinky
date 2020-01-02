@@ -1,0 +1,11 @@
+1. Install nano: sudo apt install nano
+2. Setup git using github account
+3. Checkout robocar-pinky repo
+4. Setup fan to autorun on boot: 
+	$ sudo nano /etc/rc.local
+	$ sudo chmod +x /etc/rc.local
+	Add:
+		sh -c 'echo 64 > /sys/devices/pwm-fan/target_pwm'
+5. Install ROS: http://wiki.ros.org/melodic/Installation/Ubuntu
+6. Install Stero Board Libs: sudo apt install libv4l-dev libudev-dev ros-melodic-rtabmap*
+
