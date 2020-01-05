@@ -34,18 +34,22 @@ catkin_package(
 )
 
 find_package(Boost REQUIRED COMPONENTS system)
-find_package(OpenCV REQUIRED)
+find_package(OpenCV 3 REQUIRED)
+
+#set(OpenCV_INCLUDE_DIRS /usr/local/include/opencv2)
 
 include_directories(
     include
     ${catkin_INCLUDE_DIRS}
-#  ${OpenCV_INCLUDE_DIRS}
-#  Use the latest full build
-    /usr/local/include/opencv4
+    ${OpenCV_INCLUDE_DIRS}
 )
 
+message( ${catkin_INCLUDE_DIRS} )
+message( ${OpenCV_INCLUDE_DIRS} )
+message( ${OpenCV_LIBS} )
+
 add_executable(ocams_1cgn src/oCamS.cpp src/withrobot_camera.cpp src/withrobot_utility.cpp)
-target_link_libraries(ocams_1cgn ${catkin_LIBRARIES} ${Boost_LIBRARIES} ${OpenCV_LIBS} -lv4l2 -ludev)
+target_link_libraries(ocams_1cgn ${catkin_LIBRARIES} ${Boost_LIBRARIES} ${OpenCV_LIBS} -lv4l2 -ludev -lopencv_core -lopencv_imgproc -lopencv_highgui -lopencv_imgcodecs -lopencv_calib3d -lopencv_features2d -lopencv_video -lopencv_videoio -pthread)
 add_dependencies(ocams_1cgn ${PROJECT_NAME}_gencfg)
 
 ###############################################################################

@@ -34,7 +34,7 @@ catkin_package(
 )
 
 find_package(Boost REQUIRED COMPONENTS system)
-find_package(OpenCV REQUIRED)
+find_package(OpenCV 3 REQUIRED)
 
 include_directories(
     include
@@ -43,7 +43,8 @@ include_directories(
 )
 
 add_executable(People_counter src/oCamS.cpp src/withrobot_camera.cpp src/withrobot_utility.cpp)
-target_link_libraries(People_counter ${catkin_LIBRARIES} ${Boost_LIBRARIES} ${OpenCV_LIBS} -lv4l2 -ludev)
+#target_link_libraries(People_counter ${catkin_LIBRARIES} ${Boost_LIBRARIES} ${OpenCV_LIBS} -lv4l2 -ludev)
+target_link_libraries(People_counter ${catkin_LIBRARIES} ${Boost_LIBRARIES} ${OpenCV_LIBS} -lv4l2 -ludev -lopencv_core -lopencv_imgproc -lopencv_highgui -lopencv_imgcodecs -lopencv_calib3d -lopencv_features2d -lopencv_video -lopencv_videoio -pthread)
 add_dependencies(People_counter ${PROJECT_NAME}_gencfg)
 
 ###############################################################################

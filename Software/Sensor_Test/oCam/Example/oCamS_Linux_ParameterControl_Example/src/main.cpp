@@ -67,7 +67,7 @@ int main( int argc, char** argv )
     int e =	150;
     String toggle = "Off";
     /* camera */
-    const char* devPath = "/dev/video1";
+    const char* devPath = "/dev/video0";
 
     /* Camera Open */
     Withrobot::Camera cap(devPath);

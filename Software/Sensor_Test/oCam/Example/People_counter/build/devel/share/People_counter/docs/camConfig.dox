@@ -1,0 +1,24 @@
+\subsubsection parameters ROS parameters
+
+Reads and maintains the following parameters on the ROS server
+
+- \b "~exposure" : \b [int] Exposure parameter min: 1, default: 100, max: 625
+- \b "~gain" : \b [int] Gain parameter min: 0, default: 32, max: 255
+- \b "~wb_blue" : \b [int] Whitebalance Blue parameter min: 0, default: 200, max: 250
+- \b "~wb_red" : \b [int] Whitebalance Red parameter min: 0, default: 150, max: 250
+- \b "~auto_exposure" : \b [bool] Auto-Exposure parameter min: False, default: True, max: True
+- \b "~stereo_algorithm" : \b [int] sterel algorithm min: 0, default: 1, max: 4
+- \b "~prefilter_type" : \b [int] Pre-filtering type(BM only) min: 0, default: 0, max: 1
+- \b "~prefilter_size" : \b [int] Normalization window size, pixels(BM only) min: 5, default: 9, max: 255
+- \b "~prefilter_cap" : \b [int] Bound on normalized pixel values min: 1, default: 31, max: 63
+- \b "~correlation_window_size" : \b [int] SAD correlation window width, pixels min: 1, default: 15, max: 255
+- \b "~min_disparity" : \b [int] Disparity to begin search at, pixels (may be negative) min: -128, default: 0, max: 128
+- \b "~disparity_range" : \b [int] Number of disparities to search, pixels min: 32, default: 80, max: 256
+- \b "~texture_threshold" : \b [int] Filter out if SAD window response does not exceed texture threshold(BM only) min: 0, default: 10, max: 10000
+- \b "~uniqueness_ratio" : \b [int] Filter out if best match does not sufficiently exceed the next-best match min: 0, default: 15, max: 100
+- \b "~speckle_range" : \b [int] Max allowed difference between detected disparities min: 0, default: 4, max: 31
+- \b "~speckle_size" : \b [int] Reject regions smaller than this size, pixels min: 0, default: 100, max: 1000
+- \b "~disp12MaxDiff" : \b [int] Maximum allowed difference (in integer pixel units) in the left-right disparity check min: -1, default: 0, max: 128
+- \b "~P1" : \b [int] The first parameter controlling the disparity smoothness, only available in SGBM min: 0, default: 200, max: 4000
+- \b "~P2" : \b [int] The second parameter controlling the disparity smoothness., only available in SGBM min: 0, default: 400, max: 4000
+

@@ -1,0 +1,8 @@
+prefix=/home/robocar/robocar-pinky/Software/Sensor_Test/oCam/Example/People_counter/build/devel
+
+Name: People_counter
+Description: Description of People_counter
+Version: 0.0.2
+Cflags: -I/home/robocar/robocar-pinky/Software/Sensor_Test/oCam/Example/People_counter/build/devel/include -I/home/robocar/robocar-pinky/Software/Sensor_Test/oCam/Example/People_counter/include
+Libs: -L/home/robocar/robocar-pinky/Software/Sensor_Test/oCam/Example/People_counter/build/devel/lib 
+Requires: roscpp std_msgs image_transport image_geometry camera_info_manager sensor_msgs tf dynamic_reconfigure

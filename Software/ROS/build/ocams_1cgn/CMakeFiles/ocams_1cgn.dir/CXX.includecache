@@ -2994,63 +2994,63 @@ opencv2/imgproc.hpp
 opencv2/core.hpp
 /usr/include/opencv/opencv2/opencv2/core.hpp
 
-/usr/local/include/opencv4/opencv2/shape.hpp
+/usr/local/include/opencv2/shape.hpp
 opencv2/shape/emdL1.hpp
-/usr/local/include/opencv4/opencv2/opencv2/shape/emdL1.hpp
+/usr/local/include/opencv2/opencv2/shape/emdL1.hpp
 opencv2/shape/shape_transformer.hpp
-/usr/local/include/opencv4/opencv2/opencv2/shape/shape_transformer.hpp
+/usr/local/include/opencv2/opencv2/shape/shape_transformer.hpp
 opencv2/shape/hist_cost.hpp
-/usr/local/include/opencv4/opencv2/opencv2/shape/hist_cost.hpp
+/usr/local/include/opencv2/opencv2/shape/hist_cost.hpp
 opencv2/shape/shape_distance.hpp
-/usr/local/include/opencv4/opencv2/opencv2/shape/shape_distance.hpp
+/usr/local/include/opencv2/opencv2/shape/shape_distance.hpp
 
-/usr/local/include/opencv4/opencv2/shape/emdL1.hpp
+/usr/local/include/opencv2/shape/emdL1.hpp
 opencv2/core.hpp
-/usr/local/include/opencv4/opencv2/shape/opencv2/core.hpp
+/usr/local/include/opencv2/shape/opencv2/core.hpp
 
-/usr/local/include/opencv4/opencv2/shape/hist_cost.hpp
+/usr/local/include/opencv2/shape/hist_cost.hpp
 opencv2/imgproc.hpp
-/usr/local/include/opencv4/opencv2/shape/opencv2/imgproc.hpp
+/usr/local/include/opencv2/shape/opencv2/imgproc.hpp
 
-/usr/local/include/opencv4/opencv2/shape/shape_distance.hpp
+/usr/local/include/opencv2/shape/shape_distance.hpp
 opencv2/core.hpp
-/usr/local/include/opencv4/opencv2/shape/opencv2/core.hpp
+/usr/local/include/opencv2/shape/opencv2/core.hpp
 opencv2/shape/hist_cost.hpp
-/usr/local/include/opencv4/opencv2/shape/opencv2/shape/hist_cost.hpp
+/usr/local/include/opencv2/shape/opencv2/shape/hist_cost.hpp
 opencv2/shape/shape_transformer.hpp
-/usr/local/include/opencv4/opencv2/shape/opencv2/shape/shape_transformer.hpp
+/usr/local/include/opencv2/shape/opencv2/shape/shape_transformer.hpp
 
-/usr/local/include/opencv4/opencv2/shape/shape_transformer.hpp
+/usr/local/include/opencv2/shape/shape_transformer.hpp
 vector
 -
 opencv2/core.hpp
-/usr/local/include/opencv4/opencv2/shape/opencv2/core.hpp
+/usr/local/include/opencv2/shape/opencv2/core.hpp
 opencv2/imgproc.hpp
-/usr/local/include/opencv4/opencv2/shape/opencv2/imgproc.hpp
+/usr/local/include/opencv2/shape/opencv2/imgproc.hpp
 
-/usr/local/include/opencv4/opencv2/superres.hpp
+/usr/local/include/opencv2/superres.hpp
 opencv2/core.hpp
-/usr/local/include/opencv4/opencv2/opencv2/core.hpp
+/usr/local/include/opencv2/opencv2/core.hpp
 opencv2/superres/optical_flow.hpp
-/usr/local/include/opencv4/opencv2/opencv2/superres/optical_flow.hpp
+/usr/local/include/opencv2/opencv2/superres/optical_flow.hpp
 
-/usr/local/include/opencv4/opencv2/superres/optical_flow.hpp
+/usr/local/include/opencv2/superres/optical_flow.hpp
 opencv2/core.hpp
-/usr/local/include/opencv4/opencv2/superres/opencv2/core.hpp
+/usr/local/include/opencv2/superres/opencv2/core.hpp
 
-/usr/local/include/opencv4/opencv2/videostab.hpp
+/usr/local/include/opencv2/videostab.hpp
 opencv2/videostab/stabilizer.hpp
-/usr/local/include/opencv4/opencv2/opencv2/videostab/stabilizer.hpp
+/usr/local/include/opencv2/opencv2/videostab/stabilizer.hpp
 opencv2/videostab/ring_buffer.hpp
-/usr/local/include/opencv4/opencv2/opencv2/videostab/ring_buffer.hpp
+/usr/local/include/opencv2/opencv2/videostab/ring_buffer.hpp
 
-/usr/local/include/opencv4/opencv2/videostab/deblurring.hpp
+/usr/local/include/opencv2/videostab/deblurring.hpp
 vector
 -
 opencv2/core.hpp
-/usr/local/include/opencv4/opencv2/videostab/opencv2/core.hpp
+/usr/local/include/opencv2/videostab/opencv2/core.hpp
 
-/usr/local/include/opencv4/opencv2/videostab/fast_marching.hpp
+/usr/local/include/opencv2/videostab/fast_marching.hpp
 cmath
 -
 queue
@@ -3058,133 +3058,133 @@ queue
 algorithm
 -
 opencv2/core.hpp
-/usr/local/include/opencv4/opencv2/videostab/opencv2/core.hpp
+/usr/local/include/opencv2/videostab/opencv2/core.hpp
 fast_marching_inl.hpp
-/usr/local/include/opencv4/opencv2/videostab/fast_marching_inl.hpp
+/usr/local/include/opencv2/videostab/fast_marching_inl.hpp
 
-/usr/local/include/opencv4/opencv2/videostab/fast_marching_inl.hpp
+/usr/local/include/opencv2/videostab/fast_marching_inl.hpp
 opencv2/videostab/fast_marching.hpp
-/usr/local/include/opencv4/opencv2/videostab/opencv2/videostab/fast_marching.hpp
+/usr/local/include/opencv2/videostab/opencv2/videostab/fast_marching.hpp
 
-/usr/local/include/opencv4/opencv2/videostab/frame_source.hpp
+/usr/local/include/opencv2/videostab/frame_source.hpp
 vector
 -
 opencv2/core.hpp
-/usr/local/include/opencv4/opencv2/videostab/opencv2/core.hpp
+/usr/local/include/opencv2/videostab/opencv2/core.hpp
 
-/usr/local/include/opencv4/opencv2/videostab/global_motion.hpp
+/usr/local/include/opencv2/videostab/global_motion.hpp
 vector
 -
 fstream
 -
 opencv2/core.hpp
-/usr/local/include/opencv4/opencv2/videostab/opencv2/core.hpp
+/usr/local/include/opencv2/videostab/opencv2/core.hpp
 opencv2/features2d.hpp
-/usr/local/include/opencv4/opencv2/videostab/opencv2/features2d.hpp
+/usr/local/include/opencv2/videostab/opencv2/features2d.hpp
 opencv2/opencv_modules.hpp
-/usr/local/include/opencv4/opencv2/videostab/opencv2/opencv_modules.hpp
+/usr/local/include/opencv2/videostab/opencv2/opencv_modules.hpp
 opencv2/videostab/optical_flow.hpp
-/usr/local/include/opencv4/opencv2/videostab/opencv2/videostab/optical_flow.hpp
+/usr/local/include/opencv2/videostab/opencv2/videostab/optical_flow.hpp
 opencv2/videostab/motion_core.hpp
-/usr/local/include/opencv4/opencv2/videostab/opencv2/videostab/motion_core.hpp
+/usr/local/include/opencv2/videostab/opencv2/videostab/motion_core.hpp
 opencv2/videostab/outlier_rejection.hpp
-/usr/local/include/opencv4/opencv2/videostab/opencv2/videostab/outlier_rejection.hpp
+/usr/local/include/opencv2/videostab/opencv2/videostab/outlier_rejection.hpp
 opencv2/cudaimgproc.hpp
-/usr/local/include/opencv4/opencv2/videostab/opencv2/cudaimgproc.hpp
+/usr/local/include/opencv2/videostab/opencv2/cudaimgproc.hpp
 
-/usr/local/include/opencv4/opencv2/videostab/inpainting.hpp
+/usr/local/include/opencv2/videostab/inpainting.hpp
 vector
 -
 opencv2/core.hpp
-/usr/local/include/opencv4/opencv2/videostab/opencv2/core.hpp
+/usr/local/include/opencv2/videostab/opencv2/core.hpp
 opencv2/videostab/optical_flow.hpp
-/usr/local/include/opencv4/opencv2/videostab/opencv2/videostab/optical_flow.hpp
+/usr/local/include/opencv2/videostab/opencv2/videostab/optical_flow.hpp
 opencv2/videostab/fast_marching.hpp
-/usr/local/include/opencv4/opencv2/videostab/opencv2/videostab/fast_marching.hpp
+/usr/local/include/opencv2/videostab/opencv2/videostab/fast_marching.hpp
 opencv2/videostab/global_motion.hpp
-/usr/local/include/opencv4/opencv2/videostab/opencv2/videostab/global_motion.hpp
+/usr/local/include/opencv2/videostab/opencv2/videostab/global_motion.hpp
 opencv2/photo.hpp
-/usr/local/include/opencv4/opencv2/videostab/opencv2/photo.hpp
+/usr/local/include/opencv2/videostab/opencv2/photo.hpp
 
-/usr/local/include/opencv4/opencv2/videostab/log.hpp
+/usr/local/include/opencv2/videostab/log.hpp
 opencv2/core.hpp
-/usr/local/include/opencv4/opencv2/videostab/opencv2/core.hpp
+/usr/local/include/opencv2/videostab/opencv2/core.hpp
 
-/usr/local/include/opencv4/opencv2/videostab/motion_core.hpp
+/usr/local/include/opencv2/videostab/motion_core.hpp
 cmath
 -
 opencv2/core.hpp
-/usr/local/include/opencv4/opencv2/videostab/opencv2/core.hpp
+/usr/local/include/opencv2/videostab/opencv2/core.hpp
 
-/usr/local/include/opencv4/opencv2/videostab/motion_stabilizing.hpp
+/usr/local/include/opencv2/videostab/motion_stabilizing.hpp
 vector
 -
 utility
 -
 opencv2/core.hpp
-/usr/local/include/opencv4/opencv2/videostab/opencv2/core.hpp
+/usr/local/include/opencv2/videostab/opencv2/core.hpp
 opencv2/videostab/global_motion.hpp
-/usr/local/include/opencv4/opencv2/videostab/opencv2/videostab/global_motion.hpp
+/usr/local/include/opencv2/videostab/opencv2/videostab/global_motion.hpp
 
-/usr/local/include/opencv4/opencv2/videostab/optical_flow.hpp
+/usr/local/include/opencv2/videostab/optical_flow.hpp
 opencv2/core.hpp
-/usr/local/include/opencv4/opencv2/videostab/opencv2/core.hpp
+/usr/local/include/opencv2/videostab/opencv2/core.hpp
 opencv2/opencv_modules.hpp
-/usr/local/include/opencv4/opencv2/videostab/opencv2/opencv_modules.hpp
+/usr/local/include/opencv2/videostab/opencv2/opencv_modules.hpp
 opencv2/cudaoptflow.hpp
-/usr/local/include/opencv4/opencv2/videostab/opencv2/cudaoptflow.hpp
+/usr/local/include/opencv2/videostab/opencv2/cudaoptflow.hpp
 
-/usr/local/include/opencv4/opencv2/videostab/outlier_rejection.hpp
+/usr/local/include/opencv2/videostab/outlier_rejection.hpp
 vector
 -
 opencv2/core.hpp
-/usr/local/include/opencv4/opencv2/videostab/opencv2/core.hpp
+/usr/local/include/opencv2/videostab/opencv2/core.hpp
 opencv2/videostab/motion_core.hpp
-/usr/local/include/opencv4/opencv2/videostab/opencv2/videostab/motion_core.hpp
+/usr/local/include/opencv2/videostab/opencv2/videostab/motion_core.hpp
 
-/usr/local/include/opencv4/opencv2/videostab/ring_buffer.hpp
+/usr/local/include/opencv2/videostab/ring_buffer.hpp
 vector
 -
 opencv2/imgproc.hpp
-/usr/local/include/opencv4/opencv2/videostab/opencv2/imgproc.hpp
+/usr/local/include/opencv2/videostab/opencv2/imgproc.hpp
 
-/usr/local/include/opencv4/opencv2/videostab/stabilizer.hpp
+/usr/local/include/opencv2/videostab/stabilizer.hpp
 vector
 -
 ctime
 -
 opencv2/core.hpp
-/usr/local/include/opencv4/opencv2/videostab/opencv2/core.hpp
+/usr/local/include/opencv2/videostab/opencv2/core.hpp
 opencv2/imgproc.hpp
-/usr/local/include/opencv4/opencv2/videostab/opencv2/imgproc.hpp
+/usr/local/include/opencv2/videostab/opencv2/imgproc.hpp
 opencv2/videostab/global_motion.hpp
-/usr/local/include/opencv4/opencv2/videostab/opencv2/videostab/global_motion.hpp
+/usr/local/include/opencv2/videostab/opencv2/videostab/global_motion.hpp
 opencv2/videostab/motion_stabilizing.hpp
-/usr/local/include/opencv4/opencv2/videostab/opencv2/videostab/motion_stabilizing.hpp
+/usr/local/include/opencv2/videostab/opencv2/videostab/motion_stabilizing.hpp
 opencv2/videostab/frame_source.hpp
-/usr/local/include/opencv4/opencv2/videostab/opencv2/videostab/frame_source.hpp
+/usr/local/include/opencv2/videostab/opencv2/videostab/frame_source.hpp
 opencv2/videostab/log.hpp
-/usr/local/include/opencv4/opencv2/videostab/opencv2/videostab/log.hpp
+/usr/local/include/opencv2/videostab/opencv2/videostab/log.hpp
 opencv2/videostab/inpainting.hpp
-/usr/local/include/opencv4/opencv2/videostab/opencv2/videostab/inpainting.hpp
+/usr/local/include/opencv2/videostab/opencv2/videostab/inpainting.hpp
 opencv2/videostab/deblurring.hpp
-/usr/local/include/opencv4/opencv2/videostab/opencv2/videostab/deblurring.hpp
+/usr/local/include/opencv2/videostab/opencv2/videostab/deblurring.hpp
 opencv2/videostab/wobble_suppression.hpp
-/usr/local/include/opencv4/opencv2/videostab/opencv2/videostab/wobble_suppression.hpp
+/usr/local/include/opencv2/videostab/opencv2/videostab/wobble_suppression.hpp
 
-/usr/local/include/opencv4/opencv2/videostab/wobble_suppression.hpp
+/usr/local/include/opencv2/videostab/wobble_suppression.hpp
 vector
 -
 opencv2/core.hpp
-/usr/local/include/opencv4/opencv2/videostab/opencv2/core.hpp
+/usr/local/include/opencv2/videostab/opencv2/core.hpp
 opencv2/core/cuda.hpp
-/usr/local/include/opencv4/opencv2/videostab/opencv2/core/cuda.hpp
+/usr/local/include/opencv2/videostab/opencv2/core/cuda.hpp
 opencv2/videostab/global_motion.hpp
-/usr/local/include/opencv4/opencv2/videostab/opencv2/videostab/global_motion.hpp
+/usr/local/include/opencv2/videostab/opencv2/videostab/global_motion.hpp
 opencv2/videostab/log.hpp
-/usr/local/include/opencv4/opencv2/videostab/opencv2/videostab/log.hpp
+/usr/local/include/opencv2/videostab/opencv2/videostab/log.hpp
 
-/usr/local/include/opencv4/opencv2/viz.hpp
+/usr/local/include/opencv2/viz.hpp
 opencv2/viz/types.hpp
 -
 opencv2/viz/widgets.hpp
@@ -3194,7 +3194,7 @@ opencv2/viz/viz3d.hpp
 opencv2/viz/vizcore.hpp
 -
 
-/usr/local/include/opencv4/opencv2/viz/types.hpp
+/usr/local/include/opencv2/viz/types.hpp
 string
 -
 opencv2/core.hpp
@@ -3202,7 +3202,7 @@ opencv2/core.hpp
 opencv2/core/affine.hpp
 -
 
-/usr/local/include/opencv4/opencv2/viz/viz3d.hpp
+/usr/local/include/opencv2/viz/viz3d.hpp
 opencv2/core.hpp
 -
 opencv2/viz/types.hpp
@@ -3210,7 +3210,7 @@ opencv2/viz/types.hpp
 opencv2/viz/widgets.hpp
 -
 
-/usr/local/include/opencv4/opencv2/viz/vizcore.hpp
+/usr/local/include/opencv2/viz/vizcore.hpp
 opencv2/viz/types.hpp
 -
 opencv2/viz/widgets.hpp
@@ -3218,21 +3218,21 @@ opencv2/viz/widgets.hpp
 opencv2/viz/viz3d.hpp
 -
 
-/usr/local/include/opencv4/opencv2/viz/widgets.hpp
+/usr/local/include/opencv2/viz/widgets.hpp
 opencv2/viz/types.hpp
 -
 
-/usr/local/include/opencv4/opencv2/xfeatures2d.hpp
+/usr/local/include/opencv2/xfeatures2d.hpp
 opencv2/features2d.hpp
-/usr/local/include/opencv4/opencv2/opencv2/features2d.hpp
+/usr/local/include/opencv2/opencv2/features2d.hpp
 opencv2/xfeatures2d/nonfree.hpp
-/usr/local/include/opencv4/opencv2/opencv2/xfeatures2d/nonfree.hpp
+/usr/local/include/opencv2/opencv2/xfeatures2d/nonfree.hpp
 
-/usr/local/include/opencv4/opencv2/xfeatures2d/nonfree.hpp
+/usr/local/include/opencv2/xfeatures2d/nonfree.hpp
 opencv2/features2d.hpp
-/usr/local/include/opencv4/opencv2/xfeatures2d/opencv2/features2d.hpp
+/usr/local/include/opencv2/xfeatures2d/opencv2/features2d.hpp
 
-/usr/local/include/opencv4/opencv2/ximgproc/disparity_filter.hpp
+/usr/local/include/opencv2/ximgproc/disparity_filter.hpp
 opencv2/core.hpp
 -
 opencv2/calib3d.hpp

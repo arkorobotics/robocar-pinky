@@ -1,0 +1,8 @@
+prefix=/usr/local
+
+Name: People_counter
+Description: Description of People_counter
+Version: 0.0.2
+Cflags: -I/usr/local/include
+Libs: -L/usr/local/lib 
+Requires: roscpp std_msgs image_transport image_geometry camera_info_manager sensor_msgs tf dynamic_reconfigure

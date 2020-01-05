@@ -705,11 +705,11 @@ private:
 
 
             /****************** Rectification *****************/
-            cv::cvtColor(left_raw, left_rgb, CV_BayerGR2RGB);
-            cv::cvtColor(right_raw, right_mono, CV_BayerGR2GRAY);
+            cv::cvtColor(left_raw, left_rgb, cv::COLOR_BayerGR2RGB);
+            cv::cvtColor(right_raw, right_mono, cv::COLOR_BayerGR2GRAY);
 
             Rectification(left_rgb, right_mono, map11, map12, map21, map22, left_rect_color, right_rect_mono);
-            cv::cvtColor(left_rect_color, left_rect_mono, CV_BGR2GRAY);
+            cv::cvtColor(left_rect_color, left_rect_mono, cv::COLOR_BGR2GRAY);
 
             //Rect roi_rect(280,130,150,200);
             Rect roi_rect(roi_x,roi_y,roi_w,roi_h);

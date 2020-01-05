@@ -6,5 +6,5 @@ CXX_FLAGS =   -std=c++11
 
 CXX_DEFINES = -DROSCONSOLE_BACKEND_LOG4CXX -DROS_BUILD_SHARED_LIBS=1 -DROS_PACKAGE_NAME=\"ocams_1cgn\"
 
-CXX_INCLUDES = -I/home/robocar/robocar-pinky/Software/ROS/devel/include -I/home/robocar/robocar-pinky/Software/ROS/src/ocams_1cgn/include -I/opt/ros/melodic/include -I/opt/ros/melodic/share/xmlrpcpp/cmake/../../../include/xmlrpcpp -I/usr/include/opencv -isystem /usr/local/include/opencv4 
+CXX_INCLUDES = -I/home/robocar/robocar-pinky/Software/ROS/devel/include -I/home/robocar/robocar-pinky/Software/ROS/src/ocams_1cgn/include -I/opt/ros/melodic/include -I/opt/ros/melodic/share/xmlrpcpp/cmake/../../../include/xmlrpcpp -I/usr/include/opencv -isystem /usr/local/include -isystem /usr/local/include/opencv 
 
