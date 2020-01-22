@@ -1,2 +1,0 @@
-ocams_1cgn
--DCATKIN_DEVEL_PREFIX=/home/robocar/robocar-pinky/Software/ROS/devel -DCMAKE_INSTALL_PREFIX=/home/robocar/robocar-pinky/Software/ROS/install -G Unix Makefiles

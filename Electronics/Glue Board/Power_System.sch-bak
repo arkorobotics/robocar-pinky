@@ -858,4 +858,8 @@ Wire Wire Line
 	4500 7250 4300 7250
 Wire Wire Line
 	4300 7250 4300 7500
+Text Notes 9150 5350 0    50   ~ 0
+FOR REV B:\nINSTALL 5V->2k->CP2->2k->GND\nAND\nC4 = 0.01uF\n
+Text Notes 7600 1750 0    50   ~ 0
+FOR REV B:\nR5 = 2.7k\nR4 = 2k
 $EndSCHEMATC
