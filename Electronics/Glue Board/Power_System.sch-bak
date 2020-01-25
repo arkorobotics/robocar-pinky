@@ -862,4 +862,6 @@ Text Notes 9150 5350 0    50   ~ 0
 FOR REV B:\nINSTALL 5V->2k->CP2->2k->GND\nAND\nC4 = 0.01uF\n
 Text Notes 7600 1750 0    50   ~ 0
 FOR REV B:\nR5 = 2.7k\nR4 = 2k
+Text Notes 11800 3850 0    50   ~ 0
+FOR REV B:\nADD MORE THAN OR EQUAL TO 100uF
 $EndSCHEMATC
