@@ -29,7 +29,7 @@ Noctua Fan | $14.95 | [Amazon](https://www.amazon.com/gp/product/B071FNHVXN)
 ### Hardware Interface Board
 Part | Cost  |  Link
 ------------ | ------------- | -------------
-Glue Board | ~$300.00 | [GitHub](./Electronics/Glue\ Board)
+Glue Board | ~$300.00 | [GitHub](./Electronics/Glue%20Board)
 
 ### Drive System
 Part | Cost  |  Link
@@ -41,7 +41,7 @@ Part | Cost | Link
 ------------ | ------------- | -------------
 Screw Set | $20.98 | [Amazon](https://www.amazon.com/gp/product/B07QLWPJKC/)
 Heat Insert | $19.99 | [Amazon](https://www.amazon.com/gp/product/B07MWBJB67)
-3D Printable Models | ~$20.00 | [GitHub](./Mechanical/CAD/STL\ Files)
+3D Printable Models | ~$20.00 | [GitHub](./Mechanical/CAD/STL%20Files)
 
 ### Other
 Part | Cost  |  Link
