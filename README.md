@@ -6,10 +6,14 @@ Pinky is a 1/16 scale DIY autonomous car designed to compete in the [DIY Robocar
 ## Design
 
 ### Block Diagram
-<img src="Design/System Block Diagram/Pinky_Top_Level.png">
+<img src="Design/System Block Diagram/Pinky - Top Level.png">
 
 ### Assembled Hardware
 <img src="Mechanical/CAD/Pinky_Assembled.jpg">
+
+## Software
+
+See the [Software](./Software) subfolder.
 
 ## Hardware
 
@@ -29,7 +33,7 @@ Noctua Fan | $14.95 | [Amazon](https://www.amazon.com/gp/product/B071FNHVXN)
 ### Hardware Interface Board
 Part | Cost  |  Link
 ------------ | ------------- | -------------
-Glue Board | ~$300.00 | [GitHub](./Electronics/Glue%20Board)
+Glue Board (Fab/Assembly Required) | ~$300.00 | [GitHub](./Electronics/Glue%20Board)
 
 ### Drive System
 Part | Cost  |  Link
@@ -40,8 +44,8 @@ VATOS RC Car 9137R | $54.99 | [Amazon](https://www.amazon.com/gp/product/B07QRRJ
 Part | Cost | Link
 ------------ | ------------- | -------------
 Screw Set | $20.98 | [Amazon](https://www.amazon.com/gp/product/B07QLWPJKC/)
-Heat Insert | $19.99 | [Amazon](https://www.amazon.com/gp/product/B07MWBJB67)
-3D Printable Models | ~$20.00 | [GitHub](./Mechanical/CAD/STL%20Files)
+Threaded Heat Insert | $19.99 | [Amazon](https://www.amazon.com/gp/product/B07MWBJB67)
+3D Printable Models (Fab/Assembly Required) | ~$20.00 | [GitHub](./Mechanical/CAD/STL%20Files)
 
 ### Other
 Part | Cost  |  Link
@@ -53,6 +57,15 @@ Samsung SD Car 128GB | $16.99 | [Amazon](https://www.amazon.com/gp/product/B06XW
 WiFi/BT Antennas | $13.99 | [Amazon](https://www.amazon.com/gp/product/B01E29566W/)
 USB 3.1 Right Angle A to Right Angle C | $19.25 | [UsbFirewire](https://www.usbfirewire.com/parts/rr-arch-xxg.html#RR-ARCH-10GRC)
 
-## Software
+### Harnessing
+<img src="Electronics/Harnessing/Pinky - Harnessing-1 - Harnessing.png">
+<img src="Electronics/Harnessing/Pinky - Harnessing-2 - Harnessing.png">
+<img src="Electronics/Harnessing/Pinky - Harnessing-3 - Harnessing.png">
 
-See GitHub repository folder: [Software](./Software) 
+## Assembly
+
+For 3D printed models, use the [Autodesk Fusion 360 Pinky CAD](./Mechanical/CAD/Pinky%20Assembly%20v27.f3z) model for assembly.
+
+For electrical assembly, see diagram below:
+
+<img src="Electronics/Pinky - Assembly.png">
