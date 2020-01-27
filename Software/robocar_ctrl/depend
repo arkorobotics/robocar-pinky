@@ -1,3 +1,0 @@
-rc_ctrl.o: src/rc_ctrl.c src/i2c.h
-i2c.o: src/i2c.c src/i2c.h
-i2c.o: src/i2c.h
