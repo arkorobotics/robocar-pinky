@@ -12,13 +12,11 @@
 */
 /**************************************************************************/
 
-#define NUM_DEVICES 2
-
 /*=========================================================================
     I2C ADDRESS/BITS
     -----------------------------------------------------------------------*/
-#define VMOTOR_INA260_I2C_ADDRESS (0x4F) // 0100 1111 (A0+A1=SCL)
-#define VLOGIC_INA260_I2C_ADDRESS (0x4A) // 0100 1010 (A0+A1=SDA)
+//#define VMOTOR_INA260_I2C_ADDRESS (0x4F) // 0100 1111 (A0+A1=SCL)
+//#define VLOGIC_INA260_I2C_ADDRESS (0x4A) // 0100 1010 (A0+A1=SDA)
 /*=========================================================================*/
 
 /*=========================================================================
@@ -101,18 +99,9 @@
 
 /*=========================================================================*/
 
-struct _s_ina260_device
-{
-	uint8_t i2caddr;
-};
+void ina260_init(I2CDevice *dev);
 
-typedef struct _s_ina260_device _ina260_device;
-
-extern _ina260_device ina260_device[MAX_POWERMETER];
-
-void ina260_init(_ina260_device *dev, uint8_t addr);
-
-uint32_t ina260_getBusVoltage_mV(_ina260_device *dev);
-uint32_t ina260_getCurrent_mA(_ina260_device *dev);
-uint32_t ina260_getPower_mW(_ina260_device *dev);
+uint32_t ina260_getBusVoltage_mV(I2CDevice *dev);
+uint32_t ina260_getCurrent_mA(I2CDevice *dev);
+uint32_t ina260_getPower_mW(I2CDevice *dev);
 

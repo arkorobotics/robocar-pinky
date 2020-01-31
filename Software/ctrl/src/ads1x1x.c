@@ -2,6 +2,7 @@
 /*!
     @file     ADS1x1x.c
     @author   CPV (Elektor)
+    @modifiedby Arko
     @license  BSD (see license.txt)
     Driver for the ADS101x/ADS111x Sigma-Delta Analog/Digital Converters.
     This started out as a port of the Adafruit library, but ended

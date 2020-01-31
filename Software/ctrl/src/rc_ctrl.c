@@ -4,6 +4,9 @@
 #include <string.h>
 #include "i2c.h"
 
+#define VMOTOR_INA260_I2C_ADDRESS (0x4F) // 0100 1111 (A0+A1=SCL)
+#define VLOGIC_INA260_I2C_ADDRESS (0x4A) // 0100 1010 (A0+A1=SDA)
+
 int main(int argc, char **argv)
 {
     char i2c_dev_desc[128];
@@ -34,11 +37,11 @@ int main(int argc, char **argv)
     i2c_init_device(&device);
 
     device.bus = bus;
-    device.addr = addr;
+    device.addr = VLOGIC_INA260_I2C_ADDRESS;
     device.page_bytes = page_bytes;
     device.iaddr_bytes = iaddr_bytes;
 
-
+    ina260_init(&device);
 
     i2c_close(bus);
     return 0;
