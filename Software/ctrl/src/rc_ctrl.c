@@ -2,10 +2,11 @@
 #include <unistd.h>
 #include <stdlib.h>
 #include <string.h>
+#include <inttypes.h>
 #include "i2c.h"
 
-#define VMOTOR_INA260_I2C_ADDRESS (0x4F) // 0100 1111 (A0+A1=SCL)
-#define VLOGIC_INA260_I2C_ADDRESS (0x4A) // 0100 1010 (A0+A1=SDA)
+#define VMOTOR_INA260_I2C_ADDRESS 0x4F
+#define VLOGIC_INA260_I2C_ADDRESS 0x4A
 
 int main(int argc, char **argv)
 {
@@ -42,6 +43,9 @@ int main(int argc, char **argv)
     device.iaddr_bytes = iaddr_bytes;
 
     ina260_init(&device);
+
+    uint32_t busvoltage = ina260_getBusVoltage_mV(&device);
+    printf("bus voltage = %i", busvoltage);
 
     i2c_close(bus);
     return 0;

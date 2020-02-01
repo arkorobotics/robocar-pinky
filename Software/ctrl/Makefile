@@ -5,9 +5,10 @@ LDSHFLAGS	= -rdynamic -shared
 ARFLAGS		= rcv
 CODE_STYLE	= astyle --align-pointer=name --align-reference=name --suffix=none --break-blocks --pad-oper --pad-header --break-blocks --keep-one-line-blocks --indent-switches --indent=spaces
 CFLAGS		+= -Isrc
-LDFLAGS		= -L. -li2c -Wl,-R -Wl,.
+LDFLAGS		= -L$(OBJDIR) -li2c -Wl,-R -Wl,.
 
 OBJDIR=build
+SRCDIR=src
 SOURCES=$(wildcard src/*.c)
 HEADERS=$(wildcard src/*.h)
 OBJECTS=$(SOURCES:.c=.o)
@@ -26,13 +27,16 @@ clean:
 	$(RM) *.o *.so *~ a.out depend $(TARGETS) $(OBJDIR) build -rf
 
 libi2c.a:$(OBJECTS)
-	$(AR) $(ARFLAGS) $@ $^
+	$(AR) $(ARFLAGS) $(OBJDIR)/$@ $^
 
 libi2c.so:$(OBJECTS)
-	$(CC) $(LDSHFLAGS) -o $@ $^
+	$(CC) $(LDSHFLAGS) -o $(OBJDIR)/$@ $^
 
-rc_ctrl: rc_ctrl.o
-	$(CC) $(CFLAGS) -o $(OBJDIR)/$@ src/$^ $(LDFLAGS)
+rc_ctrl:$(OBJECTS)
+	$(CC) $(CFLAGS) -o $(OBJDIR)/$@ $^ $(LDFLAGS)
+
+ina260:$(OBJECTS)
+	$(CC) $(CFLAGS) -o $(OBJDIR)/$@ $^ $(LDFLAGS)
 
 depend:$(SOURCES) $(HEADERS)
 	$(CC) $(CFLAGS) -MM $^ > $@
