@@ -16,10 +16,7 @@
 
 int main(int argc, char **argv)
 {
-    char i2c_dev_desc[128];
-    I2C_READ_HANDLE i2c_read_handle = i2c_read;
-    I2C_WRITE_HANDLE i2c_write_handle = i2c_write;
-    unsigned int addr = 0, iaddr_bytes = 1, page_bytes = 8, bus_num = 1;
+    unsigned int iaddr_bytes = 1, page_bytes = 8, bus_num = 1;
 
     /* Open i2c bus */
     int bus;
@@ -51,14 +48,14 @@ int main(int argc, char **argv)
     vlogic_adc.i2c.iaddr_bytes = iaddr_bytes;
     // Sets 4 samples average and sampling time for voltage and current to 8.244ms
     vlogic_adc.config = INA260_CONFIG_AVGRANGE_4 | INA260_CONFIG_BVOLTAGETIME_8244US | INA260_CONFIG_SCURRENTTIME_8244US | INA260_CONFIG_MODE_SANDBVOLT_CONTINUOUS;
-    
+
     ina260_init(&vlogic_adc);
 
     uint32_t logic_bus_voltage = ina260_getBusVoltage_mV(&vlogic_adc);
-    printf("VLOGIC = %i", logic_bus_voltage);
+    printf("VLOGIC = %i\r\n", logic_bus_voltage);
 
     // Init VMOTOR ADC
-    I2CDevice vmotor_adc;
+    INA260_t vmotor_adc;
     memset(&vmotor_adc, 0, sizeof(vmotor_adc));
     i2c_init_device(&vmotor_adc.i2c);
 
@@ -68,11 +65,11 @@ int main(int argc, char **argv)
     vmotor_adc.i2c.iaddr_bytes = iaddr_bytes;
     // Sets 4 samples average and sampling time for voltage and current to 8.244ms
     vmotor_adc.config = INA260_CONFIG_AVGRANGE_4 | INA260_CONFIG_BVOLTAGETIME_8244US | INA260_CONFIG_SCURRENTTIME_8244US | INA260_CONFIG_MODE_SANDBVOLT_CONTINUOUS;
-    
+
     ina260_init(&vmotor_adc);
 
     uint32_t motor_bus_voltage = ina260_getBusVoltage_mV(&vmotor_adc);
-    printf("VMOTOR = %i", motor_bus_voltage);
+    printf("VMOTOR = %i\r\n", motor_bus_voltage);
 
     // Init STATE ADC
     ADS1115_t state_adc;
@@ -84,11 +81,19 @@ int main(int argc, char **argv)
     state_adc.i2c.page_bytes = page_bytes;
     state_adc.i2c.iaddr_bytes = iaddr_bytes;
 
-    ADS1115_init(&state_adc,MUX_SINGLE_0,PGA_4096);
-    
-    ADS1115_set_multiplexer(&state_adc, MUX_SINGLE_0);
-    ADS1115_start_conversion(&state_adc);
-    printf("STATE_ADC_0 = %f", (float)ADS1115_read(&state_adc)*4.096/32767.0);
+    ads1115_init(&state_adc,MUX_SINGLE_0,PGA_4096);
+
+    ads1115_set_multiplexer(&state_adc, MUX_SINGLE_0);
+    ads1115_start_conversion(&state_adc);
+    printf("STATE_ADC_0 = %f\r\n", (float)ads1115_read(&state_adc)*4.096/32767.0);
+
+    ads1115_set_multiplexer(&state_adc, MUX_SINGLE_1);
+    ads1115_start_conversion(&state_adc);
+    printf("STATE_ADC_1 = %f\r\n", (float)ads1115_read(&state_adc)*4.096/32767.0);
+
+    ads1115_set_multiplexer(&state_adc, MUX_DIFF_2_3);
+    ads1115_start_conversion(&state_adc);
+    printf("STATE_ADC_2_3_DIFF = %f\r\n", (float)ads1115_read(&state_adc)*4.096/32767.0);
 
     // Init Drive Outputs
     PCA9685_t drive_output;
@@ -100,8 +105,18 @@ int main(int argc, char **argv)
     drive_output.i2c.page_bytes = page_bytes;
     drive_output.i2c.iaddr_bytes = iaddr_bytes;
 
-    pca9685_setup(drive_output, 50);
-    pca9685_PWM_dc(drive_output, 0, 2048);
+    pca9685_setup(&drive_output, 50);
+
+    // Drive Motor
+    pca9685_PWM_dc(&drive_output, 0, 4096);	// INA
+    pca9685_PWM_dc(&drive_output, 1, 0);	// INB
+    pca9685_PWM_dc(&drive_output, 2, 2048);	// DRIVE PWM
+
+    // Steering Motor
+    pca9685_PWM_dc(&drive_output, 3, 2048);     // IN1
+    pca9685_PWM_dc(&drive_output, 4, 0);     // IN2
+
+    printf("PWM configured and set to test case \r\n");
 
     i2c_close(bus);
     return 0;

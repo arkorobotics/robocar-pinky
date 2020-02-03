@@ -21,7 +21,7 @@
 /**************************************************************************/
 static void ina260_setConfigRegister(INA260_t *ina260)
 {
-    i2c_write(ina260->i2c, INA260_REG_CONFIG, ina260->config, 2);
+    i2c_write(&ina260->i2c, INA260_REG_CONFIG, &ina260->config, 2);
 }
 
 /**************************************************************************/
@@ -42,7 +42,7 @@ void ina260_init(INA260_t *ina260)
 static int16_t ina260_getBusVoltage_raw(INA260_t *ina260)
 {
     uint16_t value;
-    i2c_read(ina260->i2c, INA260_REG_BUSVOLTAGE, &value, 2);
+    i2c_read(&ina260->i2c, INA260_REG_BUSVOLTAGE, &value, 2);
     return (int16_t)value;
 }
 
@@ -54,7 +54,7 @@ static int16_t ina260_getBusVoltage_raw(INA260_t *ina260)
 static int16_t ina260_getCurrent_raw(INA260_t *ina260)
 {
     uint16_t value;
-    i2c_read(ina260->i2c, INA260_REG_CURRENT, &value, 2);
+    i2c_read(&ina260->i2c, INA260_REG_CURRENT, &value, 2);
     return (int16_t)value;
 }
 
@@ -66,7 +66,7 @@ static int16_t ina260_getCurrent_raw(INA260_t *ina260)
 static int16_t ina260_getPower_raw(INA260_t *ina260)
 {
     uint16_t value;
-    i2c_read(ina260->i2c, INA260_REG_POWER, &value, 2);
+    i2c_read(&ina260->i2c, INA260_REG_POWER, &value, 2);
     return (int16_t)value;
 }
 

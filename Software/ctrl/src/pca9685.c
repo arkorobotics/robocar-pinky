@@ -34,42 +34,40 @@
 
 // Define first LED and all LED. We calculate the rest
 #define LED0_ON_L 	0x6
-#define LEDALL_ON_L 0xFA
+#define LEDALL_ON_L 	0xFA
 
 #define PIN_ALL 	16
 
 /**
  * Setup a PCA9685 device with wiringPi.
- *  
+ *
  * pinBase: 	Use a pinBase > 64, eg. 300
  * i2cAddress:	The default address is 0x40
  * freq:		Frequency will be capped to range [40..1000] Hertz. Try 50 for servos
  */
-int pca9685_setup(PCA9685_t *pca9685, float freq)
+void pca9685_setup(PCA9685_t *pca9685, float freq)
 {
 	uint8_t value;
-  	i2c_read(pca9685->i2c, PCA9685_MODE1, &value, 1);
+  	i2c_read(&pca9685->i2c, PCA9685_MODE1, &value, 1);
 
 	// Setup the chip. Enable auto-increment of registers.
 	uint8_t settings = value & 0x7F;
 	uint8_t autoInc = settings | 0x20;
 
-	i2c_write(pca9685->i2c, PCA9685_MODE1, &autoInc, 1);
+	i2c_write(&pca9685->i2c, PCA9685_MODE1, &autoInc, 1);
 
 	// Set frequency of PWM signals. Also ends sleep mode and starts PWM output.
 	if (freq > 0)
 	{
 		pca9685_PWM_freq(pca9685, freq);
 	}
-
-	return fd;
 }
 
 /**
  * Sets the frequency of PWM signals.
  * Frequency will be capped to range [40..1000] Hertz. Try 50 for servos.
  */
-void pca9685_PWM_freq(int fd, float freq)
+void pca9685_PWM_freq(PCA9685_t *pca9685, float freq)
 {
 	// Cap at min and max
 	freq = (freq > 1000 ? 1000 : (freq < 40 ? 40 : freq));
@@ -81,20 +79,20 @@ void pca9685_PWM_freq(int fd, float freq)
 
 	// Get settings and calc bytes for the different states.
 	uint8_t value;
-	i2c_read(pca9685->i2c, PCA9685_MODE1, &value, 1);
+	i2c_read(&pca9685->i2c, PCA9685_MODE1, &value, 1);
 	uint8_t settings = value & 0x7F;						// Set restart bit to 0
 	uint8_t sleep	 = settings | 0x10;						// Set sleep bit to 1
 	uint8_t wake 	 = settings & 0xEF;						// Set sleep bit to 0
 	uint8_t restart  = wake | 0x80;							// Set restart bit to 1
 
 	// Go to sleep, set prescale and wake up again.
-	i2c_write(pca9685->i2c, PCA9685_MODE1, &sleep, 1);
-	i2c_write(pca9685->i2c, PCA9685_PRESCALE, &prescale, 1);
-	i2c_write(pca9685->i2c, PCA9685_MODE1, &wake, 1);
+	i2c_write(&pca9685->i2c, PCA9685_MODE1, &sleep, 1);
+	i2c_write(&pca9685->i2c, PCA9685_PRESCALE, &prescale, 1);
+	i2c_write(&pca9685->i2c, PCA9685_MODE1, &wake, 1);
 
 	// Now wait a millisecond until oscillator finished stabilizing and restart PWM.
 	//delay(1);
-	i2c_write(pca9685->i2c, PCA9685_MODE1, &restart, 1);
+	i2c_write(&pca9685->i2c, PCA9685_MODE1, &restart, 1);
 }
 
 /**
@@ -102,8 +100,11 @@ void pca9685_PWM_freq(int fd, float freq)
  */
 void pca9685_PWM_reset(PCA9685_t *pca9685)
 {
-	i2c_write(pca9685->i2c, LEDALL_ON_L, 0x0000, 2);
-	i2c_write(pca9685->i2c, (LEDALL_ON_L+2), 0x1000, 2);
+	uint16_t all_on_h = 0x0000;
+	uint16_t all_on_l = 0x1000;
+
+	i2c_write(&pca9685->i2c, LEDALL_ON_L, &all_on_h, 2);
+	i2c_write(&pca9685->i2c, (LEDALL_ON_L+2), &all_on_l, 2);
 }
 
 /**
@@ -114,9 +115,12 @@ void pca9685_PWM_write(PCA9685_t *pca9685, uint16_t pin, uint16_t on, uint16_t o
 {
 	uint16_t reg = baseReg(pin);
 
+	uint16_t on_val = (on & 0x0FFF);
+	uint16_t off_val = (off & 0x0FFF);
+
 	// Write to on and off registers and mask the 12 lowest bits of data to overwrite full-on and off
-	i2c_write(pca9685->i2c, reg, (on & 0x0FFF), 2);
-	i2c_write(pca9685->i2c, (reg+2), (off & 0x0FFF), 2);
+	i2c_write(&pca9685->i2c, reg, &on_val, 2);
+	i2c_write(&pca9685->i2c, (reg+2), &off_val, 2);
 }
 
 /**
@@ -131,11 +135,11 @@ void pca9685_PWM_read(PCA9685_t *pca9685, uint16_t pin, uint16_t *on, uint16_t *
 
 	if (on)
 	{
-		i2c_read(pca9685->i2c, reg, &on, 2);
+		i2c_read(&pca9685->i2c, reg, &on, 2);
 	}
 	if (off)
 	{
-		i2c_read(pca9685->i2c, (reg + 2), &off, 2);
+		i2c_read(&pca9685->i2c, (reg + 2), &off, 2);
 	}
 }
 
@@ -149,17 +153,17 @@ void pca9685_fullOn(PCA9685_t *pca9685, uint16_t pin, uint16_t tf)
 	uint16_t reg = baseReg(pin) + 1;		// LEDX_ON_H
 
 	uint16_t state;
-	i2c_read(pca9685->i2c, reg, &state, 1);
+	i2c_read(&pca9685->i2c, reg, &state, 1);
 
 	// Set bit 4 to 1 or 0 accordingly
 	state = tf ? (state | 0x10) : (state & 0xEF);
 
-	i2c_write(pca9685->i2c, reg, &state, 1);
+	i2c_write(&pca9685->i2c, reg, &state, 1);
 
 	// For simplicity, we set full-off to 0 because it has priority over full-on
 	if (tf)
 	{
-		pca9685_fullOff(pca9685->i2c, pin, 0);
+		pca9685_fullOff(pca9685, pin, 0);
 	}
 }
 
@@ -172,12 +176,13 @@ void pca9685_fullOff(PCA9685_t *pca9685, uint16_t pin, uint16_t tf)
 {
 	uint16_t reg = baseReg(pin) + 3;		// LEDX_OFF_H
 	uint16_t state;
-	i2c_read(pca9685->i2c, reg, &state, 1);
+
+	i2c_read(&pca9685->i2c, reg, &state, 1);
 
 	// Set bit 4 to 1 or 0 accordingly
 	state = tf ? (state | 0x10) : (state & 0xEF);
 
-	i2c_write(pca9685->i2c, reg, &state, 1);
+	i2c_write(&pca9685->i2c, reg, &state, 1);
 }
 
 /**
@@ -194,7 +199,7 @@ uint16_t baseReg(uint16_t pin)
  * If value is >= 4096, full-on will be enabled
  * Every value in between enables PWM output
  */
-static void pca9685_PWM_dc(PCA9685_t *pca9685, uint16_t pin, uint16_t value)
+void pca9685_PWM_dc(PCA9685_t *pca9685, uint16_t pin, uint16_t value)
 {
 	if (value >= 4096)
 		pca9685_fullOn(pca9685, pin, 1);
@@ -209,7 +214,7 @@ static void pca9685_PWM_dc(PCA9685_t *pca9685, uint16_t pin, uint16_t value)
  * If value is 0, full-off will be enabled
  * If value is not 0, full-on will be enabled
  */
-static void pca9685_OnOffWrite(PCA9685_t *pca9685, uint16_t pin, uint16_t value)
+void pca9685_OnOffWrite(PCA9685_t *pca9685, uint16_t pin, uint16_t value)
 {
 	if (value)
 		pca9685_fullOn(pca9685, pin, 1);
@@ -223,7 +228,7 @@ static void pca9685_OnOffWrite(PCA9685_t *pca9685, uint16_t pin, uint16_t value)
  * To get full-off bit: mask with 0x1000
  * Note: ALL_LED pin will always return 0
  */
-static uint16_t pca9685_OffRead(PCA9685_t *pca9685, uint16_t pin)
+uint16_t pca9685_OffRead(PCA9685_t *pca9685, uint16_t pin)
 {
 	uint16_t off;
 	pca9685_PWM_read(pca9685, pin, 0, &off);
@@ -237,7 +242,7 @@ static uint16_t pca9685_OffRead(PCA9685_t *pca9685, uint16_t pin)
  * To get full-on bit: mask with 0x1000
  * Note: ALL_LED pin will always return 0
  */
-static uint16_t pca9685_OnRead(PCA9685_t *pca9685, uint16_t pin)
+uint16_t pca9685_OnRead(PCA9685_t *pca9685, uint16_t pin)
 {
 	uint16_t on;
 	pca9685_PWM_read(pca9685, pin, &on, 0);

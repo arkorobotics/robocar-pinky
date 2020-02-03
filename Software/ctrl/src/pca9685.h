@@ -23,25 +23,33 @@
  * You can view the contents of the licence at <http://www.gnu.org/licenses/>.
  **************************************************************************
  */
- 
+
+#include <inttypes.h>
 #include "i2c.h"
 
+typedef struct
+{
+  I2CDevice i2c;
+  uint16_t config;
+}
+PCA9685_t;
+
 // Setup a pca9685 at the specific i2c address
-int pca9685_setup(PCA9685_t *pca9685, float freq = 50);
+void pca9685_setup(PCA9685_t *pca9685, float freq);
 
 // Advanced controls
 // You can use the file descriptor returned from the setup function to access the following features directly on each connected pca9685
 void pca9685_PWM_freq(PCA9685_t *pca9685, float freq);
 void pca9685_PWM_reset(PCA9685_t *pca9685);
-void pca9685_PWM_write(PCA9685_t *pca9685, int pin, int on, int off);
-void pca9685_PWM_read(PCA9685_t *pca9685, int pin, int *on, int *off);
+void pca9685_PWM_write(PCA9685_t *pca9685, uint16_t pin, uint16_t on, uint16_t off);
+void pca9685_PWM_read(PCA9685_t *pca9685, uint16_t pin, uint16_t *on, uint16_t *off);
 
-void pca9685_fullOn(PCA9685_t *pca9685, int pin, int tf);
-void pca9685_fullOff(PCA9685_t *pca9685, int pin, int tf);
+void pca9685_fullOn(PCA9685_t *pca9685, uint16_t pin, uint16_t tf);
+void pca9685_fullOff(PCA9685_t *pca9685, uint16_t pin, uint16_t tf);
 
-int baseReg(int pin);
+uint16_t baseReg(uint16_t pin);
 
-static void pca9685_PWM_dc(PCA9685_t *pca9685, uint16_t pin, uint16_t value);
-static void pca9685_OnOffWrite(PCA9685_t *pca9685, uint16_t pin, uint16_t value);
-static uint16_t pca9685_OffRead(PCA9685_t *pca9685, uint16_t pin);
-static uint16_t pca9685_OnRead(PCA9685_t *pca9685, uint16_t pin);
+void pca9685_PWM_dc(PCA9685_t *pca9685, uint16_t pin, uint16_t value);
+void pca9685_OnOffWrite(PCA9685_t *pca9685, uint16_t pin, uint16_t value);
+uint16_t pca9685_OffRead(PCA9685_t *pca9685, uint16_t pin);
+uint16_t pca9685_OnRead(PCA9685_t *pca9685, uint16_t pin);

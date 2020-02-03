@@ -92,6 +92,13 @@
 
 /*=========================================================================*/
 
+typedef struct
+{
+  I2CDevice i2c;
+  uint16_t config;
+}
+INA260_t;
+
 void ina260_init(INA260_t *ina260);
 
 uint32_t ina260_getBusVoltage_mV(INA260_t *ina260);

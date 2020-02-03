@@ -15,6 +15,7 @@
 #define __ADS1115_H__
 
 #include <stdint.h>
+#include <inttypes.h>
 #include "i2c.h"
 
 #define ADS1115_I2C_ADDRESS_ADDR_TO_GND   0x48
@@ -42,6 +43,13 @@
 
 // Config register bits
 #define ADS1115_REG_CONFIG_OS_IDLE                    0x8000  // Read: bit = 1 when device is not performing a conversion
+
+typedef struct
+{
+  I2CDevice i2c;
+  uint16_t config;
+}
+ADS1115_t;
 
 // The chips that we know of.
 typedef enum
@@ -149,7 +157,7 @@ ADS1115_comparator_queue_t;
 
 // Easy usage:
 // Call this at startup:
-void ads1115_init(ADS1115_t *adc1115, uint8_t i2c_address, ADS1115_mux_t input, ADS1115_pga_t gain);
+void ads1115_init(ADS1115_t *adc1115, ADS1115_mux_t input, ADS1115_pga_t gain);
 // Then call:
 void ads1115_start_conversion(ADS1115_t *adc1115);
 // ... and wait a bit before calling this:

@@ -22,7 +22,7 @@
 /**************************************************************************/
 void ads1115_write_register(ADS1115_t *adc1115, uint8_t reg, uint16_t value)
 {
-  i2c_write(adc1115, reg, &value, 2);
+  i2c_write(&adc1115->i2c, reg, &value, 2);
 }
 
 /**************************************************************************/
@@ -33,7 +33,7 @@ void ads1115_write_register(ADS1115_t *adc1115, uint8_t reg, uint16_t value)
 uint16_t ads1115_read_register(ADS1115_t *adc1115, uint8_t reg)
 {
   uint16_t value;
-  i2c_read(adc1115, reg, &value, 2);
+  i2c_read(&adc1115->i2c, reg, &value, 2);
   return (int16_t)value;
 }
 
@@ -55,8 +55,6 @@ void ads1115_init(ADS1115_t *adc1115, ADS1115_mux_t input, ADS1115_pga_t gain)
   ads1115_set_comparator_polarity(adc1115,COMPARATOR_POLARITY_ACTIVE_LO);
   ads1115_set_comparator_latching(adc1115,COMPARATOR_NON_LATCHING);
   ads1115_set_comparator_queue(adc1115,COMPARATOR_QUEUE_NONE);
-
-  return result;
 }
 
 
@@ -70,7 +68,7 @@ void ads1115_init(ADS1115_t *adc1115, ADS1115_mux_t input, ADS1115_pga_t gain)
 void ads1115_start_conversion(ADS1115_t *adc1115)
 {
   // Write configuration to the ADC.
-  ads1115_write_register(adc1115,ADS1115_REG_POINTER_CONFIG,adc1115->config);
+  ads1115_write_register(adc1115, ADS1115_REG_POINTER_CONFIG, adc1115->config);
 }
 
 
