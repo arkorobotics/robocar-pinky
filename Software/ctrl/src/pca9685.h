@@ -24,51 +24,24 @@
  **************************************************************************
  */
  
- 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-#define PCA9685_I2C_ADDRESS  (0x40)
+#include "i2c.h"
 
 // Setup a pca9685 at the specific i2c address
-extern int pca9685Setup(const int pinBase, const int i2cAddress = PCA9685_I2C_ADDRESS, float freq = 50);
-
-// You now have access to the following wiringPi functions:
-//
-// void pwmWrite (int pin, int value)
-//		if value <= 0, set full-off
-//		else if value >= 4096, set full-on
-//		else set PWM
-//
-// void digitalWrite (int pin, int value)
-// 		if value != 0, set full-on
-//		else set full-off
-//
-// int digitalRead (int pin)
-//		read off-register
-//		To get PWM: mask with 0xFFF
-//		To get full-off bit: mask with 0x1000
-//		Note: ALL_LED pin will always return 0
-//
-// int analogRead (int pin)
-//		read on-register
-//		To get PWM: mask with 0xFFF
-//		To get full-on bit: mask with 0x1000
-//		Note: ALL_LED pin will always return 0
-
-
+int pca9685_setup(PCA9685_t *pca9685, float freq = 50);
 
 // Advanced controls
 // You can use the file descriptor returned from the setup function to access the following features directly on each connected pca9685
-extern void pca9685PWMFreq(int fd, float freq);
-extern void pca9685PWMReset(int fd);
-extern void pca9685PWMWrite(int fd, int pin, int on, int off);
-extern void pca9685PWMRead(int fd, int pin, int *on, int *off);
+void pca9685_PWM_freq(PCA9685_t *pca9685, float freq);
+void pca9685_PWM_reset(PCA9685_t *pca9685);
+void pca9685_PWM_write(PCA9685_t *pca9685, int pin, int on, int off);
+void pca9685_PWM_read(PCA9685_t *pca9685, int pin, int *on, int *off);
 
-extern void pca9685FullOn(int fd, int pin, int tf);
-extern void pca9685FullOff(int fd, int pin, int tf);
+void pca9685_fullOn(PCA9685_t *pca9685, int pin, int tf);
+void pca9685_fullOff(PCA9685_t *pca9685, int pin, int tf);
 
-#ifdef __cplusplus
-}
-#endif
+int baseReg(int pin);
+
+static void pca9685_PWM_dc(PCA9685_t *pca9685, uint16_t pin, uint16_t value);
+static void pca9685_OnOffWrite(PCA9685_t *pca9685, uint16_t pin, uint16_t value);
+static uint16_t pca9685_OffRead(PCA9685_t *pca9685, uint16_t pin);
+static uint16_t pca9685_OnRead(PCA9685_t *pca9685, uint16_t pin);

@@ -12,7 +12,7 @@ SRCDIR=src
 SOURCES=$(wildcard src/*.c)
 HEADERS=$(wildcard src/*.h)
 OBJECTS=$(SOURCES:.c=.o)
-TARGETS = libi2c.a libi2c.so rc_ctrl
+TARGETS = libi2c.a libi2c.so ctrl
 
 .PHONY:all clean objdir
 .SILENT: clean
@@ -32,7 +32,7 @@ libi2c.a:$(OBJECTS)
 libi2c.so:$(OBJECTS)
 	$(CC) $(LDSHFLAGS) -o $(OBJDIR)/$@ $^
 
-rc_ctrl:$(OBJECTS)
+ctrl:$(OBJECTS)
 	$(CC) $(CFLAGS) -o $(OBJDIR)/$@ $^ $(LDFLAGS)
 
 ina260:$(OBJECTS)
