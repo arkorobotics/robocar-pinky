@@ -22,7 +22,10 @@
 /**************************************************************************/
 void ads1115_write_register(ADS1115_t *adc1115, uint8_t reg, uint16_t value)
 {
-  i2c_write(&adc1115->i2c, reg, &value, 2);
+  uint8_t buf[2];
+  buf[0] = (uint8_t)(value >> 8);
+  buf[1] = (uint8_t)(value & 0x00FF);
+  i2c_write(&adc1115->i2c, reg, &buf, 2);
 }
 
 /**************************************************************************/
@@ -32,9 +35,9 @@ void ads1115_write_register(ADS1115_t *adc1115, uint8_t reg, uint16_t value)
 /**************************************************************************/
 uint16_t ads1115_read_register(ADS1115_t *adc1115, uint8_t reg)
 {
-  uint16_t value;
-  i2c_read(&adc1115->i2c, reg, &value, 2);
-  return (int16_t)value;
+  uint8_t buf[2];
+  i2c_read(&adc1115->i2c, reg, &buf, 2);
+  return (((uint16_t)buf[0])<<8) | (uint16_t)buf[1];
 }
 
 /**************************************************************************/

@@ -21,7 +21,11 @@
 /**************************************************************************/
 static void ina260_setConfigRegister(INA260_t *ina260)
 {
-    i2c_write(&ina260->i2c, INA260_REG_CONFIG, &ina260->config, 2);
+    uint16_t config = ina260->config;
+    uint8_t buf[2];
+    buf[0] = (uint8_t)(config >> 8);
+    buf[1] = (uint8_t)(config & 0x00FF);
+    i2c_write(&ina260->i2c, INA260_REG_CONFIG, &buf, 2);
 }
 
 /**************************************************************************/
@@ -41,9 +45,9 @@ void ina260_init(INA260_t *ina260)
 /**************************************************************************/
 static uint16_t ina260_getBusVoltage_raw(INA260_t *ina260)
 {
-    uint8_t value[2];
-    i2c_read(&ina260->i2c, INA260_REG_BUSVOLTAGE, &value, 2);
-    return (((uint16_t)value[0])<<8) | (uint16_t)value[1];
+    uint8_t buf[2];
+    i2c_read(&ina260->i2c, INA260_REG_BUSVOLTAGE, &buf, 2);
+    return (((uint16_t)buf[0])<<8) | (uint16_t)buf[1];
 }
 
 /**************************************************************************/
@@ -53,9 +57,9 @@ static uint16_t ina260_getBusVoltage_raw(INA260_t *ina260)
 /**************************************************************************/
 static uint16_t ina260_getCurrent_raw(INA260_t *ina260)
 {
-    uint16_t value;
-    i2c_read(&ina260->i2c, INA260_REG_CURRENT, &value, 2);
-    return (uint16_t)value;
+    uint8_t buf[2];
+    i2c_read(&ina260->i2c, INA260_REG_CURRENT, &buf, 2);
+    return (((uint16_t)buf[0])<<8) | (uint16_t)buf[1];
 }
 
 /**************************************************************************/
@@ -65,9 +69,9 @@ static uint16_t ina260_getCurrent_raw(INA260_t *ina260)
 /**************************************************************************/
 static uint16_t ina260_getPower_raw(INA260_t *ina260)
 {
-    uint16_t value;
+    uint8_t buf[2];
     i2c_read(&ina260->i2c, INA260_REG_POWER, &value, 2);
-    return (uint16_t)value;
+    return (((uint16_t)buf[0])<<8) | (uint16_t)buf[1];
 }
 
 /**************************************************************************/
