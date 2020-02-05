@@ -14,6 +14,8 @@
 
 #include "ads1115.h"
 #include "i2c.h"
+#include <time.h>
+#include <unistd.h>
 
 /**************************************************************************/
 /*!
@@ -50,14 +52,23 @@ uint16_t ads1115_read_register(ADS1115_t *adc1115, uint8_t reg)
 void ads1115_init(ADS1115_t *adc1115, ADS1115_mux_t input, ADS1115_pga_t gain)
 {
   ads1115_set_os(adc1115,OS_SINGLE);
+  usleep(20000);
   ads1115_set_multiplexer(adc1115,input);
+  usleep(20000);
   ads1115_set_pga(adc1115,gain);
+  usleep(20000);
   ads1115_set_mode(adc1115,MODE_SINGLE_SHOT);
+  usleep(20000);
   ads1115_set_data_rate(adc1115,DATA_RATE_ADS111x_128);
+  usleep(20000);
   ads1115_set_comparator_mode(adc1115,COMPARATOR_MODE_TRADITIONAL);
+  usleep(20000);
   ads1115_set_comparator_polarity(adc1115,COMPARATOR_POLARITY_ACTIVE_LO);
+  usleep(20000);
   ads1115_set_comparator_latching(adc1115,COMPARATOR_NON_LATCHING);
+  usleep(20000);
   ads1115_set_comparator_queue(adc1115,COMPARATOR_QUEUE_NONE);
+  usleep(20000);
 }
 
 

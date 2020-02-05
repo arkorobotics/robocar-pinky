@@ -70,7 +70,7 @@ static uint16_t ina260_getCurrent_raw(INA260_t *ina260)
 static uint16_t ina260_getPower_raw(INA260_t *ina260)
 {
     uint8_t buf[2];
-    i2c_read(&ina260->i2c, INA260_REG_POWER, &value, 2);
+    i2c_read(&ina260->i2c, INA260_REG_POWER, &buf, 2);
     return (((uint16_t)buf[0])<<8) | (uint16_t)buf[1];
 }
 

@@ -1,4 +1,6 @@
 #include <stdio.h>
+#include <stdlib.h>
+#include <time.h>
 #include <unistd.h>
 #include <stdlib.h>
 #include <string.h>
@@ -13,6 +15,7 @@
 #define VLOGIC_INA260_I2C_ADDRESS   0x4A
 #define STATE_ADS1115_I2C_ADDRESS   0x48
 #define DRIVE_PCA9685_I2C_ADDRESS   0x40
+
 
 int main(int argc, char **argv)
 {
@@ -85,14 +88,17 @@ int main(int argc, char **argv)
 
     ads1115_set_multiplexer(&state_adc, MUX_SINGLE_0);
     ads1115_start_conversion(&state_adc);
+    usleep(20000);
     printf("STATE_ADC_0 = %f\r\n", (float)ads1115_read(&state_adc)*4.096/32767.0);
 
     ads1115_set_multiplexer(&state_adc, MUX_SINGLE_1);
     ads1115_start_conversion(&state_adc);
+    usleep(20000);
     printf("STATE_ADC_1 = %f\r\n", (float)ads1115_read(&state_adc)*4.096/32767.0);
 
     ads1115_set_multiplexer(&state_adc, MUX_DIFF_2_3);
     ads1115_start_conversion(&state_adc);
+    usleep(20000);
     printf("STATE_ADC_2_3_DIFF = %f\r\n", (float)ads1115_read(&state_adc)*4.096/32767.0);
 
     // Init Drive Outputs
