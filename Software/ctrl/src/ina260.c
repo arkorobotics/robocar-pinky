@@ -39,11 +39,11 @@ void ina260_init(INA260_t *ina260)
     @brief  Gets the raw bus voltage (16-bit signed integer, so +-32767)
 */
 /**************************************************************************/
-static int16_t ina260_getBusVoltage_raw(INA260_t *ina260)
+static uint16_t ina260_getBusVoltage_raw(INA260_t *ina260)
 {
-    uint16_t value;
+    uint8_t value[2];
     i2c_read(&ina260->i2c, INA260_REG_BUSVOLTAGE, &value, 2);
-    return (int16_t)value;
+    return (((uint16_t)value[0])<<8) | (uint16_t)value[1];
 }
 
 /**************************************************************************/
@@ -51,11 +51,11 @@ static int16_t ina260_getBusVoltage_raw(INA260_t *ina260)
     @brief  Gets the raw current value (16-bit signed integer, so +-32767)
 */
 /**************************************************************************/
-static int16_t ina260_getCurrent_raw(INA260_t *ina260)
+static uint16_t ina260_getCurrent_raw(INA260_t *ina260)
 {
     uint16_t value;
     i2c_read(&ina260->i2c, INA260_REG_CURRENT, &value, 2);
-    return (int16_t)value;
+    return (uint16_t)value;
 }
 
 /**************************************************************************/
@@ -63,11 +63,11 @@ static int16_t ina260_getCurrent_raw(INA260_t *ina260)
     @brief  Gets the raw power value (16-bit signed integer, so +-32767)
 */
 /**************************************************************************/
-static int16_t ina260_getPower_raw(INA260_t *ina260)
+static uint16_t ina260_getPower_raw(INA260_t *ina260)
 {
     uint16_t value;
     i2c_read(&ina260->i2c, INA260_REG_POWER, &value, 2);
-    return (int16_t)value;
+    return (uint16_t)value;
 }
 
 /**************************************************************************/
