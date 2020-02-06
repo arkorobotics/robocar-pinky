@@ -992,4 +992,6 @@ Wire Wire Line
 	4700 2850 5300 2850
 Wire Wire Line
 	4700 2950 5300 2950
+Text Notes 14750 7250 0    50   ~ 0
+FOR REV B:\nFlip pin mapping for J6\n1 - GND\n2 - RESDIV\n3 - 5V\n4 - OUT2\n5 - OUT1
 $EndSCHEMATC

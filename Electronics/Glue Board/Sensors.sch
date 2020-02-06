@@ -822,4 +822,6 @@ Wire Wire Line
 	14500 6550 14500 6750
 Wire Wire Line
 	14500 7050 14500 7150
+Text Notes 1300 6250 0    50   ~ 0
+FOR REV B:  Replace R35 with a 2K ohm resistor and add two 1K ohm resistors from each end of R35 to ground.
 $EndSCHEMATC
