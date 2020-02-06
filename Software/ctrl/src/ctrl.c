@@ -88,17 +88,17 @@ int main(int argc, char **argv)
 
     ads1115_set_multiplexer(&state_adc, MUX_SINGLE_0);
     ads1115_start_conversion(&state_adc);
-    usleep(20000);
+    usleep(8000);
     printf("STATE_ADC_0 = %f\r\n", (float)ads1115_read(&state_adc)*4.096/32767.0);
 
     ads1115_set_multiplexer(&state_adc, MUX_SINGLE_1);
     ads1115_start_conversion(&state_adc);
-    usleep(20000);
+    usleep(8000);
     printf("STATE_ADC_1 = %f\r\n", (float)ads1115_read(&state_adc)*4.096/32767.0);
 
-    ads1115_set_multiplexer(&state_adc, MUX_DIFF_2_3);
+    ads1115_set_multiplexer(&state_adc, MUX_SINGLE_3);
     ads1115_start_conversion(&state_adc);
-    usleep(20000);
+    usleep(8000);
     printf("STATE_ADC_2_3_DIFF = %f\r\n", (float)ads1115_read(&state_adc)*4.096/32767.0);
 
     // Init Drive Outputs
@@ -119,7 +119,7 @@ int main(int argc, char **argv)
     pca9685_PWM_dc(&drive_output, 2, 2048);	// DRIVE PWM
 
     // Steering Motor
-    pca9685_PWM_dc(&drive_output, 3, 2048);     // IN1
+    pca9685_PWM_dc(&drive_output, 3, 0);     // IN1
     pca9685_PWM_dc(&drive_output, 4, 0);     // IN2
 
     printf("PWM configured and set to test case \r\n");
