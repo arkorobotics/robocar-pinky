@@ -35,9 +35,6 @@ libi2c.so:$(OBJECTS)
 ctrl:$(OBJECTS)
 	$(CC) $(CFLAGS) -o $(OBJDIR)/$@ $^ $(LDFLAGS)
 
-ina260:$(OBJECTS)
-	$(CC) $(CFLAGS) -o $(OBJDIR)/$@ $^ $(LDFLAGS)
-
 depend:$(SOURCES) $(HEADERS)
 	$(CC) $(CFLAGS) -MM $^ > $@
 

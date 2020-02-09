@@ -1,11 +1,8 @@
-#include "ina260.h"
-#include "i2c.h"
-
 /**************************************************************************/
 /*!
-    @file     Thanos_INA260.cpp
-    @author   Thanos Kontogiannis
-    @modifiedby Arko
+    @file     ina260.c
+    @author   Arko
+    @basedon  Thanos Kontogiannis
         @license  BSD (see license.txt)
         Driver for the INA260 current sensor
         This is a library for the INA260
@@ -13,6 +10,9 @@
     v1.0 - First release
 */
 /**************************************************************************/
+
+#include "ina260.h"
+#include "i2c.h"
 
 /**************************************************************************/
 /*!

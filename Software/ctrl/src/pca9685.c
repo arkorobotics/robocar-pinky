@@ -33,10 +33,10 @@
 #define PCA9685_PRESCALE 	0xFE
 
 // Define first LED and all LED. We calculate the rest
-#define LED0_ON_L 	0x6
-#define LEDALL_ON_L 	0xFA
+#define LED0_ON_L 			0x6
+#define LEDALL_ON_L 		0xFA
 
-#define PIN_ALL 	16
+#define PIN_ALL 			16
 
 /**
  * Setup a PCA9685 device with wiringPi.
