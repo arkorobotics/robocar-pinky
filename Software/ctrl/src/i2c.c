@@ -57,7 +57,7 @@ void i2c_init_device(I2CDevice *device)
     /* 7 bit device address */
     device->tenbit = 0;
 
-    /* 1ms delay */
+    /* 100us delay */
     device->delay = 1;
 
     /* 8 bytes per page */
@@ -78,7 +78,7 @@ void i2c_init_device(I2CDevice *device)
 char *i2c_get_device_desc(const I2CDevice *device, char *buf, size_t size)
 {
     memset(buf, 0, size);
-    snprintf(buf, size, "Device address: 0x%x, tenbit: %s, internal(word) address: %d bytes, page max %d bytes, delay: %dms",
+    snprintf(buf, size, "Device address: 0x%x, tenbit: %s, internal(word) address: %d bytes, page max %d bytes, delay: %d x100 us",
              device->addr, device->tenbit ? "True" : "False", device->iaddr_bytes, device->page_bytes, device->delay);
 
     return buf;
@@ -360,10 +360,10 @@ int i2c_select(int bus, unsigned long dev_addr, unsigned long tenbit)
 
 /*
 **	@brief	:	i2c delay
-**	#msec	:	milliscond to be delay
+**	#msec	:	100's of microseconds to be delayed
 */
 static void i2c_delay(unsigned char msec)
 {
-    usleep(msec * 1e2);
+    usleep(msec * 1e2); // 100's of us to be delayed 
 }
 
