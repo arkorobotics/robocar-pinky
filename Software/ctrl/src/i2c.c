@@ -364,6 +364,6 @@ int i2c_select(int bus, unsigned long dev_addr, unsigned long tenbit)
 */
 static void i2c_delay(unsigned char msec)
 {
-    usleep(msec * 1e3);
+    usleep(msec * 1e2);
 }
 

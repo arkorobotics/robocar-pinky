@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <sys/time.h>
 #include <time.h>
 #include <unistd.h>
 #include <stdlib.h>
@@ -16,8 +17,11 @@ int main(int argc, char **argv)
     // Initialize Glue Board
     glue_init();
 
+    usleep(10000);
+    glue_state_update();
+
     // Print state
-    glue_print(glue_state_update());
+    //glue_print(glue_state_update());
 
     // Set Drive and Steering Motor to 5%
     glue_set_drive_motor(0.1);
