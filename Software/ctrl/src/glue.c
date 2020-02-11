@@ -35,6 +35,8 @@ INA260_t vmotor_adc;
 ADS1115_t veh_state_adc;
 PCA9685_t drive_output;
 
+Glue_State glue_state;
+
 /**************************************************************************/
 /*!
     @brief  Setup and initialize the Glue Board via I2C.
@@ -177,6 +179,149 @@ int glue_init(void)
 
 /**************************************************************************/
 /*!
+    @brief  Update the glue board state
+    @return Glue State
+*/
+/**************************************************************************/
+Glue_State glue_state_update(void)
+{
+    glue_state.vmotor_battery_mv = ina260_getBusVoltage_mV(&vmotor_adc);
+    glue_state.vlogic_battery_mv = ina260_getBusVoltage_mV(&vlogic_adc);
+
+    ads1115_set_multiplexer(&veh_state_adc, MUX_SINGLE_0);
+    ads1115_start_conversion(&veh_state_adc);
+    usleep(1500);   // Wait for conversion
+    glue_state.steering_position = (float)ads1115_read(&veh_state_adc)*4.096/32767.0;
+
+    ads1115_set_multiplexer(&veh_state_adc, MUX_SINGLE_1);
+    ads1115_start_conversion(&veh_state_adc);
+    usleep(1500);   // Wait for conversion
+    glue_state.drive_torque = (float)ads1115_read(&veh_state_adc)*4.096/32767.0;
+
+    ads1115_set_multiplexer(&veh_state_adc, MUX_SINGLE_3);
+    ads1115_start_conversion(&veh_state_adc);
+    usleep(1500);   // Wait for conversion
+    glue_state.drive_velocity = (float)ads1115_read(&veh_state_adc)*4.096/32767.0;
+
+    return glue_state;
+}
+
+/**************************************************************************/
+/*!
+    @brief  Sets drive motor magnitude
+    @param  drive   Input drive magnitude. Ranges from -1.0 to 1.0
+    @return Error code
+*/
+/**************************************************************************/
+int glue_set_drive_motor(float drive)
+{
+    // Drive Motor
+    //
+    //      Channels 0-2 of the PCA9685 are connected to a VNH5019ATR-E
+    //      PCA9685 CH 0 => VNH5019ATR-E INA
+    //      PCA9685 CH 1 => VNH5019ATR-E INB
+    //      PCA9685 CH 2 => VNH5019ATR-E DRIVE PWM
+    //
+    //      PCA9685 Truth Table
+    //      INA     INB     OPERATING MODE
+    //       1       1      Brake to VCC
+    //       1       0      TBD?Forward / Clockwise (CW)
+    //       0       1      TBD?Backward / Counterclockwise (CCW)
+    //       0       0      Brake to GND
+    //
+
+    uint16_t ina = 0;
+    uint16_t inb = 0;
+    uint16_t duty_cycle = 0;
+
+    // Set motor control direction
+    if(drive > 0.000)           // Forward
+    { 
+        ina = 4096; 
+        inb = 0; 
+    }
+    else if (drive < 0.000)     // Reverse
+    { 
+        ina = 0; 
+        inb = 4096; 
+    }
+    else                        // Brake
+    {
+        ina = 0;
+        inb = 0;
+    }
+
+    // Set drive duty cycle
+    duty_cycle = (uint16_t)(abs(drive)*4096.0);    
+
+    // Update output
+    pca9685_PWM_dc(&drive_output, 0, ina);	        // INA          
+    pca9685_PWM_dc(&drive_output, 1, inb);	        // INB          
+    pca9685_PWM_dc(&drive_output, 2, duty_cycle);	// DRIVE PWM    (0 = 0%, 4096 = 100%)
+
+    return 1;
+}
+
+/**************************************************************************/
+/*!
+    @brief  Sets steering motor magnitude
+    @param  drive   Input drive magnitude. Ranges from -1.0 to 1.0
+    @return Error code
+*/
+/**************************************************************************/
+int glue_set_steering_motor(float drive)
+{
+    // Steering Motor
+    //
+    //      Channels 3-4 of the PCA9685 are connected to a DRV8871
+    //      DRV8871 CH 3 => DRV8871 IN1
+    //      DRV8871 CH 4 => DRV8871 IN2
+    //
+    //      DRV8871 Truth Table
+    //      IN1     IN2     OPERATING MODE
+    //       1       1      Coast; H-bridge disabled to High-Z
+    //       1       0      TBD?Reverse/Left (Current OUT2 → OUT1)
+    //       0       1      TBD?Forward/Right (Current OUT1 → OUT2)
+    //       0       0      Brake; low-side slow decay
+    //
+
+    uint16_t in1 = 0;
+    uint16_t in2 = 0;
+
+    // Set motor control direction
+    if(drive > 0.000)           // Forward
+    { 
+        in1 = (uint16_t)(abs(drive)*4096.0);
+        in2 = 0; 
+    }
+    else if (drive < 0.000)     // Reverse
+    { 
+        in1 = 0; 
+        in2 = (uint16_t)(abs(drive)*4096.0);; 
+    }
+    else                        // Brake
+    {
+        in1 = 0;
+        in2 = 0;
+    }
+
+    pca9685_PWM_dc(&drive_output, 3, in1);     // IN1
+    pca9685_PWM_dc(&drive_output, 4, in2);     // IN2
+
+    return 1;
+}
+
+void glue_print(Glue_State glue_state)
+{
+    printf("VMOTOR = %i\r\n", glue_state.vmotor_battery_mv);
+    printf("VLOGIC = %i\r\n", glue_state.vlogic_battery_mv);
+    printf("STRPOS = %f\r\n", glue_state.steering_position);
+    printf("DRVTRQ = %f\r\n", glue_state.drive_torque);
+    printf("DRVVEL = %f\r\n", glue_state.drive_velocity);
+}
+
+/**************************************************************************/
+/*!
     @brief  Emergency Stop Function
 */
 /**************************************************************************/
@@ -201,6 +346,7 @@ int glue_estop(void)
 
     return 1;
 }
+
 
 
 /**************************************************************************/
