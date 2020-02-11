@@ -22,7 +22,7 @@ typedef struct
 Glue_State;
 
 int glue_init(void);
-glue_state glue_state_update(void);
+Glue_State glue_state_update(void);
 int glue_set_drive_motor(float drive);
 int glue_set_steering_motor(float drive);
 void glue_print(Glue_State glue_state);

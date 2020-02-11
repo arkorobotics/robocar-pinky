@@ -17,6 +17,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <inttypes.h>
+#include <math.h>
 
 #include "glue.h"
 #include "i2c.h"
@@ -24,7 +25,7 @@
 #include "ads1115.h"
 #include "pca9685.h"
 
-int bus;    
+int bus;
 char bus_name[32];
 unsigned int iaddr_bytes = 1;
 unsigned int page_bytes = 8;
@@ -73,9 +74,9 @@ int glue_init(void)
     vlogic_adc.i2c.page_bytes = page_bytes;
     vlogic_adc.i2c.iaddr_bytes = iaddr_bytes;
     // Sets 4 samples average and sampling time to 140us
-    vlogic_adc.config = INA260_CONFIG_AVGRANGE_4 | \
-                        INA260_CONFIG_BVOLTAGETIME_140US | \
-                        INA260_CONFIG_SCURRENTTIME_140US | \
+    vlogic_adc.config = INA260_CONFIG_AVGRANGE_4 |\
+                        INA260_CONFIG_BVOLTAGETIME_140US |\
+                        INA260_CONFIG_SCURRENTTIME_140US |\
                         INA260_CONFIG_MODE_SANDBVOLT_CONTINUOUS;
     ina260_init(&vlogic_adc);
 
@@ -87,9 +88,9 @@ int glue_init(void)
     vmotor_adc.i2c.page_bytes = page_bytes;
     vmotor_adc.i2c.iaddr_bytes = iaddr_bytes;
     // Sets 4 samples average and sampling time for voltage and current to 140us
-    vmotor_adc.config = INA260_CONFIG_AVGRANGE_4 | \ 
-                        INA260_CONFIG_BVOLTAGETIME_140US | \
-                        INA260_CONFIG_SCURRENTTIME_140US | 
+    vmotor_adc.config = INA260_CONFIG_AVGRANGE_4 |\
+                        INA260_CONFIG_BVOLTAGETIME_140US |\
+                        INA260_CONFIG_SCURRENTTIME_140US |\
                         INA260_CONFIG_MODE_SANDBVOLT_CONTINUOUS;
     ina260_init(&vmotor_adc);
 
@@ -252,7 +253,7 @@ int glue_set_drive_motor(float drive)
     }
 
     // Set drive duty cycle
-    duty_cycle = (uint16_t)(abs(drive)*4096.0);    
+    duty_cycle = (uint16_t)((float)fabs(drive)*4096.0);    
 
     // Update output
     pca9685_PWM_dc(&drive_output, 0, ina);	        // INA          
@@ -291,13 +292,13 @@ int glue_set_steering_motor(float drive)
     // Set motor control direction
     if(drive > 0.000)           // Forward
     { 
-        in1 = (uint16_t)(abs(drive)*4096.0);
+        in1 = (uint16_t)((float)fabs(drive)*4096.0);
         in2 = 0; 
     }
     else if (drive < 0.000)     // Reverse
     { 
         in1 = 0; 
-        in2 = (uint16_t)(abs(drive)*4096.0);; 
+        in2 = (uint16_t)((float)fabs(drive)*4096.0);
     }
     else                        // Brake
     {
