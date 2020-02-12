@@ -1,6 +1,6 @@
 CC		= $(CROSS)gcc
 AR		= $(CROSS)ar
-CFLAGS		= -Wall -g -fPIC
+CFLAGS		= -Wall -g -fPIC -lpthread
 LDSHFLAGS	= -rdynamic -shared
 ARFLAGS		= rcv
 CODE_STYLE	= astyle --align-pointer=name --align-reference=name --suffix=none --break-blocks --pad-oper --pad-header --break-blocks --keep-one-line-blocks --indent-switches --indent=spaces

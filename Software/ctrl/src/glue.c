@@ -314,11 +314,12 @@ int glue_set_steering_motor(float drive)
 
 void glue_print(Glue_State glue_state)
 {
-    printf("VMOTOR = %i\r\n", glue_state.vmotor_battery_mv);
-    printf("VLOGIC = %i\r\n", glue_state.vlogic_battery_mv);
-    printf("STRPOS = %f\r\n", glue_state.steering_position);
-    printf("DRVTRQ = %f\r\n", glue_state.drive_torque);
-    printf("DRVVEL = %f\r\n", glue_state.drive_velocity);
+    printf("VMOTOR = %i, VLOGIC = %i, STRPOS = %.5f, DRVTRQ = %.5f, DRVVEL = %.5f\r\n",\
+            glue_state.vmotor_battery_mv,\
+            glue_state.vlogic_battery_mv,\
+            glue_state.steering_position,\
+            glue_state.drive_torque,\
+            glue_state.drive_velocity);
 }
 
 /**************************************************************************/
