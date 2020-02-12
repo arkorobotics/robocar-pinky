@@ -14,8 +14,6 @@
 #include "ctrl.h"
 #include "glue.h"
 
-bool volatile running = true;
-
 int ctrl_loop(void)
 {
     // Print state
