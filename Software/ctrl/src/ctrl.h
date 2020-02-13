@@ -5,5 +5,8 @@
 #include "i2c.h"
 
 
+void *ctrl_timer_func(void *);
+void sigint(int);
+int ctrl_loop(void);
 
 #endif // __CTRL_H__
