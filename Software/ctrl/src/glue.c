@@ -125,17 +125,17 @@ int glue_init(void)
 
     ads1115_set_multiplexer(&veh_state_adc, MUX_SINGLE_0);
     ads1115_start_conversion(&veh_state_adc);
-    usleep(1500);   // Wait for conversion
+    usleep(1600);   // Wait for conversion
     printf("STATE_ADC_0 = %f\r\n", (float)ads1115_read(&veh_state_adc)*4.096/32767.0);
 
     ads1115_set_multiplexer(&veh_state_adc, MUX_SINGLE_1);
     ads1115_start_conversion(&veh_state_adc);
-    usleep(1500);   // Wait for conversion
+    usleep(1600);   // Wait for conversion
     printf("STATE_ADC_1 = %f\r\n", (float)ads1115_read(&veh_state_adc)*4.096/32767.0);
 
     ads1115_set_multiplexer(&veh_state_adc, MUX_SINGLE_3);
     ads1115_start_conversion(&veh_state_adc);
-    usleep(1500);   // Wait for conversion
+    usleep(1600);   // Wait for conversion
     printf("STATE_ADC_2_3_DIFF = %f\r\n", (float)ads1115_read(&veh_state_adc)*4.096/32767.0);
 
     // Drive Motor
@@ -191,17 +191,17 @@ Glue_State glue_state_update(void)
 
     ads1115_set_multiplexer(&veh_state_adc, MUX_SINGLE_0);
     ads1115_start_conversion(&veh_state_adc);
-    usleep(1500);   // Wait for conversion
+    usleep(2000);   // Wait for conversion
     glue_state.steering_position = (float)ads1115_read(&veh_state_adc)*4.096/32767.0;
 
     ads1115_set_multiplexer(&veh_state_adc, MUX_SINGLE_1);
     ads1115_start_conversion(&veh_state_adc);
-    usleep(1500);   // Wait for conversion
+    usleep(2000);   // Wait for conversion
     glue_state.drive_torque = (float)ads1115_read(&veh_state_adc)*4.096/32767.0;
 
     ads1115_set_multiplexer(&veh_state_adc, MUX_SINGLE_3);
     ads1115_start_conversion(&veh_state_adc);
-    usleep(1500);   // Wait for conversion
+    usleep(2000);   // Wait for conversion
     glue_state.drive_velocity = (float)ads1115_read(&veh_state_adc)*4.096/32767.0;
 
     return glue_state;

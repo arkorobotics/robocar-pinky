@@ -20,6 +20,8 @@ extern "C" {
 
 bool volatile running = true;
 
+int64_t ctrl_loop_period = 20000000;	// 20ms -> 50Hz
+
 int main(int argc, char *argv[])
 {
     // Initialize Glue Board
@@ -67,20 +69,30 @@ int main(int argc, char *argv[])
 
 void *ctrl_timer_func(void *) {
 
-    //  keep track of the passage of time at a 5-millisecond quantized interval
+    //  keep track of the passage of time at a 20-millisecond quantized interval
     struct timespec last = {}, now = {};
     clock_gettime(CLOCK_MONOTONIC_RAW, &last);
 
     while (running) {
         clock_gettime(CLOCK_MONOTONIC_RAW, &now);
-        //  5 milliseconds, as nanoseconds
-        int64_t tosleep = 5000000 - (now.tv_sec - last.tv_sec) * 1000000000 - (now.tv_nsec - last.tv_nsec);
-        last.tv_nsec += 5000000;
+        //  20 milliseconds, as nanoseconds
+        int64_t tosleep = ctrl_loop_period - (now.tv_sec - last.tv_sec) * 1000000000 - (now.tv_nsec - last.tv_nsec);
+
+	if(tosleep < 0)
+	{
+		printf("ERROR: SCHEDULED CONTROL LOOP ROUTINE OVERRAN!!! - TOSLEEP = %" PRId64 "\n", tosleep);
+	}
+	else
+	{
+		printf("TOSLEEP = %" PRId64 ", ", tosleep);
+	}
+
+        last.tv_nsec += ctrl_loop_period;
         if (last.tv_nsec >= 1000000000) {
             last.tv_nsec -= 1000000000;
             last.tv_sec += 1;
         }
-        if (tosleep > 10000000) {
+        if (tosleep > (2*ctrl_loop_period)) {
             //  missed by more than one full interval! re-set the clock basis
             last = now;
             tosleep = 0;
@@ -106,7 +118,8 @@ int ctrl_loop(void)
     // Print state
     glue_print(glue_state_update());
 
-    usleep(100);
+    // Delay to simulate number crunching
+    usleep(500);
 
     // Set Drive and Steering Motor to 5%
     glue_set_drive_motor(0.1);
