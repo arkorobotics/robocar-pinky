@@ -13,15 +13,18 @@
 #include <errno.h>
 
 #include "ctrl.h"
-#include "glue.h"
+
+extern "C" {
+  #include "glue.h"
+}
 
 bool volatile running = true;
 
-int main() 
+int main(int argc, char *argv[])
 {
     // Initialize Glue Board
     glue_init();
-
+/*
     //  make sure ctrl-C stops the program under controlled circumstances
     signal(SIGINT, &sigint);
 
@@ -55,13 +58,13 @@ int main()
     //  wait for the program to be done
     void *ignore = NULL;
     pthread_join(mythread, &ignore);
-
+*/
     // Stop all motors
     glue_estop();
 
     return 0;
 }
-
+/*
 void *ctrl_timer_func(void *) {
 
     //  keep track of the passage of time at a 5-millisecond quantized interval
@@ -111,3 +114,4 @@ int ctrl_loop(void)
 
     return 1;
 }
+*/
