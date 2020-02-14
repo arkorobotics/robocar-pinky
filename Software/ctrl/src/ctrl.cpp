@@ -24,7 +24,7 @@ int main(int argc, char *argv[])
 {
     // Initialize Glue Board
     glue_init();
-/*
+
     //  make sure ctrl-C stops the program under controlled circumstances
     signal(SIGINT, &sigint);
 
@@ -58,13 +58,13 @@ int main(int argc, char *argv[])
     //  wait for the program to be done
     void *ignore = NULL;
     pthread_join(mythread, &ignore);
-*/
+
     // Stop all motors
     glue_estop();
 
     return 0;
 }
-/*
+
 void *ctrl_timer_func(void *) {
 
     //  keep track of the passage of time at a 5-millisecond quantized interval
@@ -105,7 +105,7 @@ int ctrl_loop(void)
 {
     // Print state
     glue_print(glue_state_update());
-    
+
     usleep(100);
 
     // Set Drive and Steering Motor to 5%
@@ -114,4 +114,3 @@ int ctrl_loop(void)
 
     return 1;
 }
-*/
