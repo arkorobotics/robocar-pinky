@@ -16,7 +16,13 @@ telem_sem = sysv_ipc.Semaphore(2001)
 # Read value from shared memory
 while(1):
 	telem_sem.acquire()
+	cmd_sem.acquire()
+
 	telem_data = telem_memory.read()
+	cmd_data = cmd_memory.read()
+
 	telem_sem.release()
+	cmd_sem.release()
 
 	print(telem_data)
+	print(cmd_data)
