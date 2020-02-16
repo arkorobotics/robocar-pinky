@@ -30,17 +30,17 @@ int64_t ctrl_loop_period = 20000000;	// 20ms -> 50Hz, value in nanoseconds
 Ctrl_Cmd ctrl_cmd;
 Ctrl_Telem ctrl_telem;
 
-// Shared Ctrl Variables
-Ctrl_Cmd *shared_ctrl_cmd;		// CMD shared memory
-Ctrl_Telem *shared_ctrl_telem;		// TELEM shared memory
-
 int main(int argc, char *argv[])
 {
     printf("=== ROBOCAR - CTRL: START ===\n");
 
     // Initalize Communication to C&DH
     printf("Initializing comm shared memory...\n");
-    comm_init(shared_ctrl_cmd, shared_ctrl_telem);
+    if(comm_init() == 0)
+    {
+	printf("ERROR: Comm init failed.");
+	exit(1);
+    }
 
     // Initialize Glue Board
     printf("Initalizing glue board...\n");
@@ -83,11 +83,8 @@ int main(int argc, char *argv[])
     // Stop all motors
     glue_estop();
 
-    // Detach and remove shared memory
-    shmdt(&cmd_shmid);
-    shmctl(cmd_shmid, IPC_RMID, NULL);
-    shmdt(&telem_shmid);
-    shmctl(telem_shmid, IPC_RMID, NULL);
+    // Close communication shared memory
+    comm_close();
 
     printf("=== ROBOCAR - CTRL: STOP ===\n");
 
@@ -158,10 +155,7 @@ int ctrl_loop(void)
     glue_set_steering_motor(0.1);
 
     // Copy the latest telemetry/command data from shared memory to local memory
-    comm_sem_acquire();
-    memcpy(shared_ctrl_telem, &ctrl_telem, sizeof(struct Ctrl_Telem));
-    memcpy(&ctrl_cmd, shared_ctrl_cmd, sizeof(struct Ctrl_Cmd));
-    comm_sem_release();
+    comm_transaction(&ctrl_cmd, &ctrl_telem);
 
     return 1;
 }

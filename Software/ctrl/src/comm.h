@@ -5,12 +5,6 @@ extern "C" {
   #include "glue.h"
 }
 
-int comm_init(Ctrl_Cmd *shared_ctrl_cmd, Ctrl_Telem *shared_ctrl_telem);
-void comm_sem_acquire(void);
-void comm_sem_release(void);
-int sem_acquire(int id);
-int sem_release(int id);
-
 struct Ctrl_Cmd
 {
     float steering_pos;
@@ -22,5 +16,11 @@ struct Ctrl_Telem
     uint32_t timestamp;
     Glue_State glue_state;
 } __attribute__((packed));
+
+int comm_init(void);
+void comm_close(void);
+void comm_transaction(Ctrl_Cmd *ctrl_cmd, Ctrl_Telem *ctrl_telem);
+int sem_acquire(int id);
+int sem_release(int id);
 
 #endif // __CTRL_H__
