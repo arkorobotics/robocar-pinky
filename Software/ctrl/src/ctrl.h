@@ -8,19 +8,19 @@ extern "C" {
 void *ctrl_timer_func(void *);
 void sigint(int);
 int ctrl_loop(void);
+int acquire(int id);
+int release(int id);
 
-typedef struct
+struct Ctrl_Cmd
 {
     float steering_pos;
     float drive_vel;
-}
-Ctrl_Cmd;
+} __attribute__((packed));
 
-typedef struct
+struct Ctrl_Telem
 {
     uint32_t timestamp;
     Glue_State glue_state;
-}
-Ctrl_Telem;
+} __attribute__((packed));
 
 #endif // __CTRL_H__
