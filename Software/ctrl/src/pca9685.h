@@ -29,8 +29,8 @@
 
 typedef struct
 {
-  I2CDevice i2c;
-  uint16_t config;
+    I2CDevice i2c;
+    uint16_t config;
 }
 PCA9685_t;
 

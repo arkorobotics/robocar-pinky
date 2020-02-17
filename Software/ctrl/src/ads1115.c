@@ -24,10 +24,10 @@
 /**************************************************************************/
 void ads1115_write_register(ADS1115_t *adc1115, uint8_t reg, uint16_t value)
 {
-  uint8_t buf[2];
-  buf[0] = (uint8_t)(value >> 8);
-  buf[1] = (uint8_t)(value & 0x00FF);
-  i2c_write(&adc1115->i2c, reg, &buf, 2);
+    uint8_t buf[2];
+    buf[0] = (uint8_t)(value >> 8);
+    buf[1] = (uint8_t)(value & 0x00FF);
+    i2c_write(&adc1115->i2c, reg, &buf, 2);
 }
 
 /**************************************************************************/
@@ -37,9 +37,9 @@ void ads1115_write_register(ADS1115_t *adc1115, uint8_t reg, uint16_t value)
 /**************************************************************************/
 uint16_t ads1115_read_register(ADS1115_t *adc1115, uint8_t reg)
 {
-  uint8_t buf[2];
-  i2c_read(&adc1115->i2c, reg, &buf, 2);
-  return (((uint16_t)buf[0])<<8) | (uint16_t)buf[1];
+    uint8_t buf[2];
+    i2c_read(&adc1115->i2c, reg, &buf, 2);
+    return (((uint16_t)buf[0])<<8) | (uint16_t)buf[1];
 }
 
 /**************************************************************************/
@@ -51,24 +51,24 @@ uint16_t ads1115_read_register(ADS1115_t *adc1115, uint8_t reg)
 /**************************************************************************/
 void ads1115_init(ADS1115_t *adc1115, ADS1115_mux_t input, ADS1115_pga_t gain)
 {
-  ads1115_set_os(adc1115,OS_SINGLE);
-  usleep(9000);   // Lots of delays because this IC is delicate
-  ads1115_set_multiplexer(adc1115,input);
-  usleep(9000);
-  ads1115_set_pga(adc1115,gain);
-  usleep(9000);
-  ads1115_set_mode(adc1115,MODE_CONTINUOUS);
-  usleep(9000);
-  ads1115_set_data_rate(adc1115,DATA_RATE_ADS111x_860);
-  usleep(9000);
-  ads1115_set_comparator_mode(adc1115,COMPARATOR_MODE_TRADITIONAL);
-  usleep(9000);
-  ads1115_set_comparator_polarity(adc1115,COMPARATOR_POLARITY_ACTIVE_LO);
-  usleep(9000);
-  ads1115_set_comparator_latching(adc1115,COMPARATOR_NON_LATCHING);
-  usleep(9000);
-  ads1115_set_comparator_queue(adc1115,COMPARATOR_QUEUE_NONE);
-  usleep(9000);
+    ads1115_set_os(adc1115,OS_SINGLE);
+    usleep(9000);   // Lots of delays because this IC is delicate
+    ads1115_set_multiplexer(adc1115,input);
+    usleep(9000);
+    ads1115_set_pga(adc1115,gain);
+    usleep(9000);
+    ads1115_set_mode(adc1115,MODE_CONTINUOUS);
+    usleep(9000);
+    ads1115_set_data_rate(adc1115,DATA_RATE_ADS111x_860);
+    usleep(9000);
+    ads1115_set_comparator_mode(adc1115,COMPARATOR_MODE_TRADITIONAL);
+    usleep(9000);
+    ads1115_set_comparator_polarity(adc1115,COMPARATOR_POLARITY_ACTIVE_LO);
+    usleep(9000);
+    ads1115_set_comparator_latching(adc1115,COMPARATOR_NON_LATCHING);
+    usleep(9000);
+    ads1115_set_comparator_queue(adc1115,COMPARATOR_QUEUE_NONE);
+    usleep(9000);
 }
 
 
@@ -81,8 +81,8 @@ void ads1115_init(ADS1115_t *adc1115, ADS1115_mux_t input, ADS1115_pga_t gain)
 /**************************************************************************/
 void ads1115_start_conversion(ADS1115_t *adc1115)
 {
-  // Write configuration to the ADC.
-  ads1115_write_register(adc1115, ADS1115_REG_POINTER_CONFIG, adc1115->config);
+    // Write configuration to the ADC.
+    ads1115_write_register(adc1115, ADS1115_REG_POINTER_CONFIG, adc1115->config);
 }
 
 
@@ -95,80 +95,80 @@ void ads1115_start_conversion(ADS1115_t *adc1115)
 /**************************************************************************/
 int16_t ads1115_read(ADS1115_t *adc1115)
 {
-  // Read the conversion result.
-  int16_t result = (int16_t)ads1115_read_register(adc1115,ADS1115_REG_POINTER_CONVERSION);
-  return result;
+    // Read the conversion result.
+    int16_t result = (int16_t)ads1115_read_register(adc1115,ADS1115_REG_POINTER_CONVERSION);
+    return result;
 }
 
 
 void ads1115_set_threshold_lo(ADS1115_t *adc1115, uint16_t value)
 {
-  ads1115_write_register(adc1115,ADS1115_REG_POINTER_LO_THRESH,value);
+    ads1115_write_register(adc1115,ADS1115_REG_POINTER_LO_THRESH,value);
 }
 
 
 void ads1115_set_threshold_hi(ADS1115_t *adc1115, uint16_t value)
 {
-  ads1115_write_register(adc1115,ADS1115_REG_POINTER_HI_THRESH,value);
+    ads1115_write_register(adc1115,ADS1115_REG_POINTER_HI_THRESH,value);
 }
 
 
 void ads1115_set_config_bitfield(ADS1115_t *adc1115, uint16_t value, uint16_t mask)
 {
-  adc1115->config &= ~mask;
-  adc1115->config |= (value & mask);
+    adc1115->config &= ~mask;
+    adc1115->config |= (value & mask);
 }
 
 
 void ads1115_set_os(ADS1115_t *adc1115, ADS1115_os_t value)
 {
-  ads1115_set_config_bitfield(adc1115,(uint16_t)value,ADS1115_REG_CONFIG_OS_MASK);
+    ads1115_set_config_bitfield(adc1115,(uint16_t)value,ADS1115_REG_CONFIG_OS_MASK);
 }
 
 
 void ads1115_set_multiplexer(ADS1115_t *adc1115, ADS1115_mux_t value)
 {
-  ads1115_set_config_bitfield(adc1115,(uint16_t)value,ADS1115_REG_CONFIG_MULTIPLEXER_MASK);
+    ads1115_set_config_bitfield(adc1115,(uint16_t)value,ADS1115_REG_CONFIG_MULTIPLEXER_MASK);
 }
 
 
 void ads1115_set_pga(ADS1115_t *adc1115, ADS1115_pga_t value)
 {
-  ads1115_set_config_bitfield(adc1115,(uint16_t)value,ADS1115_REG_CONFIG_PGA_MASK);
+    ads1115_set_config_bitfield(adc1115,(uint16_t)value,ADS1115_REG_CONFIG_PGA_MASK);
 }
 
 
 void ads1115_set_mode(ADS1115_t *adc1115, ADS1115_mode_t value)
 {
-  ads1115_set_config_bitfield(adc1115,(uint16_t)value,ADS1115_REG_CONFIG_MODE_MASK);
+    ads1115_set_config_bitfield(adc1115,(uint16_t)value,ADS1115_REG_CONFIG_MODE_MASK);
 }
 
 
 void ads1115_set_data_rate(ADS1115_t *adc1115, ADS1115_data_rate_t value)
 {
-  ads1115_set_config_bitfield(adc1115,(uint16_t)value,ADS1115_REG_CONFIG_DATA_RATE_MASK);
+    ads1115_set_config_bitfield(adc1115,(uint16_t)value,ADS1115_REG_CONFIG_DATA_RATE_MASK);
 }
 
 
 void ads1115_set_comparator_mode(ADS1115_t *adc1115, ADS1115_comparator_mode_t value)
 {
-  ads1115_set_config_bitfield(adc1115,(uint16_t)value,ADS1115_REG_CONFIG_COMPARATOR_MODE_MASK);
+    ads1115_set_config_bitfield(adc1115,(uint16_t)value,ADS1115_REG_CONFIG_COMPARATOR_MODE_MASK);
 }
 
 
 void ads1115_set_comparator_polarity(ADS1115_t *adc1115, ADS1115_comparator_polarity_t value)
 {
-  ads1115_set_config_bitfield(adc1115,(uint16_t)value,ADS1115_REG_CONFIG_COMPARATOR_POLARITY_MASK);
+    ads1115_set_config_bitfield(adc1115,(uint16_t)value,ADS1115_REG_CONFIG_COMPARATOR_POLARITY_MASK);
 }
 
 
 void ads1115_set_comparator_latching(ADS1115_t *adc1115, ADS1115_comparator_latching_t value)
 {
-  ads1115_set_config_bitfield(adc1115,(uint16_t)value,ADS1115_REG_CONFIG_COMPARATOR_LATCHING_MASK);
+    ads1115_set_config_bitfield(adc1115,(uint16_t)value,ADS1115_REG_CONFIG_COMPARATOR_LATCHING_MASK);
 }
 
 
 void ads1115_set_comparator_queue(ADS1115_t *adc1115, ADS1115_comparator_queue_t value)
 {
-  ads1115_set_config_bitfield(adc1115,(uint16_t)value,ADS1115_REG_CONFIG_COMPARATOR_QUEUE_MASK);
+    ads1115_set_config_bitfield(adc1115,(uint16_t)value,ADS1115_REG_CONFIG_COMPARATOR_QUEUE_MASK);
 }

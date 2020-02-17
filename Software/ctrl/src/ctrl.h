@@ -5,7 +5,7 @@
 #define MAX_MISSED_HEARTBEAT 25
 
 extern "C" {
-  #include "glue.h"
+    #include "glue.h"
 }
 
 void *ctrl_timer_func(void *);

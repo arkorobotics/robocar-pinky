@@ -210,7 +210,7 @@ int ctrl_loop(void)
 
         case CLEARFAULT:                        // Clear the error, and go to ESTOP state
             printf("MODE: CLEAR FAULT");
-	    missed_heartbeat_count = 0;
+	        missed_heartbeat_count = 0;
             ctrl_telem.mode = ESTOP;
             break;
 

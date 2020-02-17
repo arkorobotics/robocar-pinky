@@ -13,11 +13,11 @@
 
 typedef struct
 {
-  uint32_t vmotor_battery_mv;
-  uint32_t vlogic_battery_mv;
-  float steering_position;
-  float drive_torque;
-  float drive_velocity;
+    uint32_t vmotor_battery_mv;
+    uint32_t vlogic_battery_mv;
+    float steering_position;
+    float drive_torque;
+    float drive_velocity;
 }
 Glue_State;
 
