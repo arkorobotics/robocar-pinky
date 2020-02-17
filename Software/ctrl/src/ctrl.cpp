@@ -34,22 +34,23 @@ int main(int argc, char *argv[])
 {
     printf("=== ROBOCAR - CTRL: START ===\n");
 
+    // Make sure ctrl-C stops the program under controlled circumstances
+    signal(SIGINT, &sigint);
+
     // Initalize Communication to C&DH
     printf("Initializing comm shared memory...\n");
     if(comm_init() == 0)
     {
-	printf("ERROR: Comm init failed.");
-	exit(1);
+	    printf("ERROR: Comm init failed.\n");
+	    exit(1);
     }
 
     // Initialize Glue Board
     printf("Initalizing glue board...\n");
     glue_init();
 
-    // Make sure ctrl-C stops the program under controlled circumstances
-    signal(SIGINT, &sigint);
-
     // Create attributes for an isolated real-time thread
+    printf("Starting isolated soft real-time control loop thread...\n")
     pthread_attr_t attr = {};
     pthread_attr_init(&attr);
     // Lift the thread off core 0, which takes system interrupts
@@ -79,12 +80,17 @@ int main(int argc, char *argv[])
     // Wait for the program to be done
     void *ignore = NULL;
     pthread_join(ctrl_thread, &ignore);
+    
+    // Real time thread exited
+    printf("Real-time thread exited.\n");
 
     // Stop all motors
     glue_estop();
+    printf("ESTOP!\n");
 
     // Close communication shared memory
     comm_close();
+    printf("Comm shared memory closed.\n");
 
     printf("=== ROBOCAR - CTRL: STOP ===\n");
 
@@ -128,6 +134,7 @@ void *ctrl_timer_func(void *) {
             nanosleep(&slp, NULL);
         }
 
+        // Run the actual control loop routine
         ctrl_loop();
     }
 
@@ -144,7 +151,7 @@ int ctrl_loop(void)
     glue_print(ctrl_telem.glue_state);
 
     // TODO: Read latest command steering position and drive velocity
-    // Read the Ctrl_Cmd struct directly here by locking the semaphore
+    // Read the cmd from the last loop
 
     // Delay to simulate number crunching
     // TODO: Soon to be PID controllers
