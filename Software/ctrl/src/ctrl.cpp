@@ -23,13 +23,16 @@ extern "C" {
 }
 
 // Local Variables
-bool volatile ctrl_run = true;
+bool volatile ctrl_run = true;          // Control loop run state
 int64_t ctrl_loop_period = 20000000;	// 20ms -> 50Hz, value in nanoseconds
-int64_t tosleep;
+int64_t tosleep;                        // slack time, nanoseconds to sleep till next ctrl loop call 
+
+uint32_t missed_heartbeat_count = 0;    // Count missed heartbeat, estop at max cnt
+uint32_t last_heartbeat 0;              // Last heartbeat value, should increase monotonically
 
 // Local Ctrl Variables
-Ctrl_Cmd ctrl_cmd;
-Ctrl_Telem ctrl_telem;
+Ctrl_Cmd ctrl_cmd;                      // Command data from C&DH
+Ctrl_Telem ctrl_telem;                  // Telemetry data to C&DH
 
 int main(int argc, char *argv[])
 {
@@ -49,6 +52,9 @@ int main(int argc, char *argv[])
     // Initialize Glue Board
     printf("Initalizing glue board...\n");
     glue_init();
+
+    // Initialize the control state machine to ESTOP mode
+    ctrl_telem.mode = ESTOP;
 
     // Create attributes for an isolated real-time thread
     printf("Starting isolated soft real-time control loop thread...\n");
@@ -144,33 +150,115 @@ void *ctrl_timer_func(void *) {
 
 int ctrl_loop(void)
 {
-    // Update ToSleep for debug
+    // Update ToSleep for debug telemetry
     ctrl_telem.tosleep = tosleep;
 
     // Incremement timestamp
     ctrl_telem.timestamp += 1;
-    printf("TIME = %i,", ctrl_telem.timestamp);
-
+    
     // Read and print state
     ctrl_telem.glue_state = glue_state_update();
-    glue_print(ctrl_telem.glue_state);
 
-    printf("CMDSTRPOS = %f, CMDDRVVEL = %f\n", ctrl_cmd.steering_pos, ctrl_cmd.drive_vel);
+    // If in debug mode, print raw telem
+    #ifdef DEBUG
+        printf("TIME = %i,", ctrl_telem.timestamp);
+        glue_print(ctrl_telem.glue_state);
+        printf("CMDSTRPOS = %f, CMDDRVVEL = %f\n", ctrl_cmd.steering_pos, ctrl_cmd.drive_vel);
+    #endif
 
-    // TODO: Read latest command steering position and drive velocity
-    // Read the cmd from the last loop
+    // Control state machine
+    switch (ctrl_telem.mode)
+    {
+        case ESTOP:                             // Emergency Stop - Zero actuators
+            printf("MODE: EMERGENCY STOP\n");
+            glue_estop();
+            break;
 
-    // Delay to simulate number crunching
-    // TODO: Soon to be PID controllers
-    usleep(500);
+        case INIT:                              // Initialize drive parameters
+            printf("MODE: INIT\n");
+            
+            // TODO: Wiggle steering wheels to test/set range
 
-    // Set Drive and Steering Motor to 5%
-    glue_set_drive_motor(0.1);
-    glue_set_steering_motor(0.1);
+            break;
+
+        case IDLE:                              // Idle waiting for race to start
+            printf("MODE: IDLE\n");
+            break;
+
+        case RUN:                               // Run the race
+            printf("MODE: RUN\n");
+
+            // Delay to simulate number crunching
+            // TODO: Soon to be PID controllers
+            usleep(500);
+
+            // Set Drive and Steering Motor to 5%
+            glue_set_drive_motor(0.1);
+            glue_set_steering_motor(0.1);
+            break;
+
+        case STOP:                              // Stop racing
+            printf("MODE: STOP\n");
+            glue_set_drive_motor(0);
+            glue_set_steering_motor(0);
+            break;
+
+        case FAULT:                             // Error occured, ESTOP and phone home
+            printf("MODE: FAULT\n");
+            glue_estop();
+            break;
+
+        case CLEARFAULT:                        // Clear the error, and go to ESTOP state
+            printf("MODE: CLEAR FAULT");
+            ctrl_telem.mode = ESTOP;
+            break;
+
+        default:                                // If all else fails, ESTOP and phone home
+            printf("MODE: FATAL\n");
+            glue_estop();
+            break;
+    }
 
     // Copy the latest telemetry/command data from shared memory to local memory
     comm_transaction(&ctrl_cmd, &ctrl_telem);
 
+    // Fault protection and mode command handler
+    if(ctrl_telem.mode != FAULT)    // No faults, continue
+    {
+        // Timeout based deadman switch
+        // If we lose too many heartbeat counts, issue an ESTOP
+        // Else accept the new command mode
+        if(last_heartbeat < ctrl_cmd.heartbeat)
+        {
+            // Store the new heartbeat count value
+            last_heartbeat = ctrl_cmd.heartbeat;
+
+            // Reset missed heartbeat counter
+            missed_heartbeat_count = 0;
+
+            // Set the control mode for the next cycle based on what is commanded
+            ctrl_telem.mode = ctrl_cmd.mode;
+        }
+        else
+        {
+            if(missed_heartbeat_count >= MAX_MISSED_HEARTBEAT)
+            {
+                ctrl_telem.mode = FAULT;
+            }
+            else
+            {
+                missed_heartbeat_count++;
+            }
+        }
+    }
+    else                            // Fault state, wait for clear fault command
+    {
+        if(ctrl_cmd.mode == CLEARFAULT)
+        {
+            ctrl_telem.mode = ctrl_cmd.mode;
+        }
+    }
+    
     return 1;
 }
 

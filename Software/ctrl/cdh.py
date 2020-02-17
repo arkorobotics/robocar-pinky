@@ -1,5 +1,6 @@
 import sysv_ipc
 from struct import *
+from time import sleep
 
 cmd_key = 1000                   # CMD shared memory key
 cmd_sem_key = 1001               # CMD semaphore key
@@ -14,7 +15,9 @@ cmd_sem = sysv_ipc.Semaphore(1001)
 telem_memory = sysv_ipc.SharedMemory(2000)
 telem_sem = sysv_ipc.Semaphore(2001)
 
-cmd_packet = pack('=ff', 1, 2)
+cmd_packet = pack('=LLff', 0, 1, 2, 3)
+
+heartbeat = 0
 
 # Read value from shared memory
 while(1):
@@ -28,12 +31,16 @@ while(1):
 	telem_sem.release()
 	cmd_sem.release()
 
-	telem_data = unpack('=qLLLfff', telem_packet)
-	cmd_data_ro = unpack('=ff', cmd_data_ro)
+	telem_data = unpack('=LqLLLfff', telem_packet)
+	cmd_data_ro = unpack('=LLff', cmd_data_ro)
 
 	# prcp loop?
 
-	cmd_packet = pack('=ff', 1, 2)
+	cmd_packet = pack('=LLff', 0, heartbeat, 2, 3)
 
 	print(telem_data)
 	print(cmd_data_ro)
+
+	heartbeat = heartbeat + 1
+	
+	sleep(0.02)		# Sleep for 20ms to simulate future vision processing load
