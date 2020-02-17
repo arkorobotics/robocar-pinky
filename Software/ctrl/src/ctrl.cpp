@@ -28,7 +28,7 @@ int64_t ctrl_loop_period = 20000000;	// 20ms -> 50Hz, value in nanoseconds
 int64_t tosleep;                        // slack time, nanoseconds to sleep till next ctrl loop call 
 
 uint32_t missed_heartbeat_count = 0;    // Count missed heartbeat, estop at max cnt
-uint32_t last_heartbeat 0;              // Last heartbeat value, should increase monotonically
+uint32_t last_heartbeat = 0;              // Last heartbeat value, should increase monotonically
 
 // Local Ctrl Variables
 Ctrl_Cmd ctrl_cmd;                      // Command data from C&DH
@@ -176,7 +176,7 @@ int ctrl_loop(void)
 
         case INIT:                              // Initialize drive parameters
             printf("MODE: INIT\n");
-            
+
             // TODO: Wiggle steering wheels to test/set range
 
             break;
@@ -210,6 +210,7 @@ int ctrl_loop(void)
 
         case CLEARFAULT:                        // Clear the error, and go to ESTOP state
             printf("MODE: CLEAR FAULT");
+	    missed_heartbeat_count = 0;
             ctrl_telem.mode = ESTOP;
             break;
 
@@ -258,7 +259,7 @@ int ctrl_loop(void)
             ctrl_telem.mode = ctrl_cmd.mode;
         }
     }
-    
+
     return 1;
 }
 
