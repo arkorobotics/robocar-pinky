@@ -13,6 +13,7 @@ struct Ctrl_Cmd
 
 struct Ctrl_Telem
 {
+    int64_t tosleep;
     uint32_t timestamp;
     Glue_State glue_state;
 } __attribute__((packed));

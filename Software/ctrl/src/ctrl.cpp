@@ -25,6 +25,7 @@ extern "C" {
 // Local Variables
 bool volatile ctrl_run = true;
 int64_t ctrl_loop_period = 20000000;	// 20ms -> 50Hz, value in nanoseconds
+int64_t tosleep;
 
 // Local Ctrl Variables
 Ctrl_Cmd ctrl_cmd;
@@ -50,7 +51,7 @@ int main(int argc, char *argv[])
     glue_init();
 
     // Create attributes for an isolated real-time thread
-    printf("Starting isolated soft real-time control loop thread...\n")
+    printf("Starting isolated soft real-time control loop thread...\n");
     pthread_attr_t attr = {};
     pthread_attr_init(&attr);
     // Lift the thread off core 0, which takes system interrupts
@@ -107,7 +108,7 @@ void *ctrl_timer_func(void *) {
     {
         clock_gettime(CLOCK_MONOTONIC_RAW, &now);
         //  20 milliseconds, as nanoseconds
-        int64_t tosleep = ctrl_loop_period - (now.tv_sec - last.tv_sec) * 1000000000 - (now.tv_nsec - last.tv_nsec);
+        tosleep = ctrl_loop_period - (now.tv_sec - last.tv_sec) * 1000000000 - (now.tv_nsec - last.tv_nsec);
 
         if(tosleep < 0)
         {
@@ -143,12 +144,18 @@ void *ctrl_timer_func(void *) {
 
 int ctrl_loop(void)
 {
+    // Update ToSleep for debug
+    ctrl_telem.tosleep = tosleep;
+
     // Incremement timestamp
     ctrl_telem.timestamp += 1;
+    printf("TIME = %i,", ctrl_telem.timestamp);
 
     // Read and print state
     ctrl_telem.glue_state = glue_state_update();
     glue_print(ctrl_telem.glue_state);
+
+    printf("CMDSTRPOS = %f, CMDDRVVEL = %f\n", ctrl_cmd.steering_pos, ctrl_cmd.drive_vel);
 
     // TODO: Read latest command steering position and drive velocity
     // Read the cmd from the last loop
