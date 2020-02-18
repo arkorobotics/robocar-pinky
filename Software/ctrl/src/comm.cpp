@@ -1,3 +1,13 @@
+/**************************************************************************/
+/*!
+    @file     comm.cpp
+    @author   Arko
+    @license  BSD (see license.txt)
+    Robocar Communication Interface
+    v1.0 - First release
+*/
+/**************************************************************************/
+
 #include <sys/time.h>
 #include <sys/types.h>
 #include <sys/ipc.h>
@@ -18,19 +28,25 @@ extern "C" {
 
 // Shared Ctrl Variables
 Ctrl_Cmd *shared_ctrl_cmd;		// CMD shared memory
-Ctrl_Telem *shared_ctrl_telem;		// TELEM shared memory
+Ctrl_Telem *shared_ctrl_telem;	// TELEM shared memory
 
 // Shared Mem and Semaphore Ctrl Variables
-int cmd_shmid;				// CMD shared memory ID
-key_t cmd_key = 1000;                   // CMD shared memory key
-int cmd_sem_id;				// CMD semaphore ID
+int cmd_shmid;				    // CMD shared memory ID
+key_t cmd_key = 1000;           // CMD shared memory key
+int cmd_sem_id;				    // CMD semaphore ID
 key_t cmd_sem_key = 1001;		// CMD semaphore key
 
-int telem_shmid;			// TELEM shared memory ID
-key_t telem_key = 2000;                 // TELEM shared memory key
-int telem_sem_id;			// TELEM semaphore ID
+int telem_shmid;			    // TELEM shared memory ID
+key_t telem_key = 2000;         // TELEM shared memory key
+int telem_sem_id;			    // TELEM semaphore ID
 key_t telem_sem_key = 2001;		// TELEM semaphore key
 
+/**************************************************************************/
+/*!
+    @brief  Intialize communication interface
+    @return Error code
+*/
+/**************************************************************************/
 int comm_init(void)
 {
     // Setup CMD semaphore and shared memory
@@ -74,6 +90,12 @@ int comm_init(void)
     return 1;
 }
 
+/**************************************************************************/
+/*!
+    @brief  Close communication interface
+    @return None
+*/
+/**************************************************************************/
 void comm_close(void)
 {
     // Detach and remove shared memory
@@ -83,6 +105,14 @@ void comm_close(void)
     shmctl(telem_shmid, IPC_RMID, NULL);
 }
 
+/**************************************************************************/
+/*!
+    @brief  Communication transaction
+    @param  ctrl_cmd   Command struct to read
+    @param  ctrl_telem Telemetry struct to send
+    @return None
+*/
+/**************************************************************************/
 void comm_transaction(Ctrl_Cmd *ctrl_cmd, Ctrl_Telem *ctrl_telem)
 {
     sem_acquire(telem_sem_id);
@@ -95,6 +125,13 @@ void comm_transaction(Ctrl_Cmd *ctrl_cmd, Ctrl_Telem *ctrl_telem)
     sem_release(cmd_sem_id);
 }
 
+/**************************************************************************/
+/*!
+    @brief  Acquire semaphore for shared memory
+    @param  id   Semaphore ID
+    @return Error code
+*/
+/**************************************************************************/
 int sem_acquire(int id)
 {
     int retval;
@@ -109,6 +146,13 @@ int sem_acquire(int id)
     return retval;
 }
 
+/**************************************************************************/
+/*!
+    @brief  Release semaphore for shared memory
+    @param  id   Semaphore ID
+    @return Error code
+*/
+/**************************************************************************/
 int sem_release(int id)
 {
     int retval;

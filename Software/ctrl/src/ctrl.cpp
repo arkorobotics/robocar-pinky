@@ -1,3 +1,13 @@
+/**************************************************************************/
+/*!
+    @file     ctrl.cpp
+    @author   Arko
+    @license  BSD (see license.txt)
+    Robocar Control Program
+    v1.0 - First release
+*/
+/**************************************************************************/
+
 #include <pthread.h>
 #include <sched.h>
 #include <signal.h>
@@ -23,19 +33,54 @@ extern "C" {
 }
 
 // Local Variables
-bool volatile ctrl_run = true;          // Control loop run state
-int64_t ctrl_loop_period = 20000000;	// 20ms -> 50Hz, value in nanoseconds
-int64_t tosleep;                        // slack time, nanoseconds to sleep till next ctrl loop call 
+bool volatile ctrl_run = true;                  // Control loop run state
 
-uint32_t missed_heartbeat_count = 0;    // Count missed heartbeat, estop at max cnt
-uint32_t last_heartbeat = 0;              // Last heartbeat value, should increase monotonically
+int64_t ctrl_loop_period = CTRL_LOOP_PERIOD;	// 20ms -> 50Hz, value in nanoseconds
+int64_t tosleep;                                // slack time, nanoseconds to sleep till next ctrl loop call 
 
-// Local Ctrl Variables
-Ctrl_Cmd ctrl_cmd;                      // Command data from C&DH
-Ctrl_Telem ctrl_telem;                  // Telemetry data to C&DH
+uint32_t missed_heartbeat_count = 0;            // Count missed heartbeat, estop at max cnt
+uint32_t last_heartbeat = 0;                    // Last heartbeat value, should increase monotonically
 
+// Local Communication Variables
+Ctrl_Cmd ctrl_cmd;                              // Command data from C&DH
+Ctrl_Telem ctrl_telem;                          // Telemetry data to C&DH
+
+// Steering Motor PID Variables
+float steer_desired_pos = 0.0;
+float steer_actual_pos = 0.0;
+float steer_error_pos = 0.0;
+float steer_error_pos_prior = 0.0;
+float steer_i_accu = 0.0;
+float steer_p = 0.0;
+float steer_i = 0.0;
+float steer_d = 0.0;
+float steer_out = 0.0;
+
+// Drive Motor PID Variables
+float drive_desired_vel = 0.0;
+float drive_actual_vel = 0.0;
+float drive_error_vel = 0.0;
+float drive_error_vel_prior = 0.0;
+float drive_i_accu = 0.0;
+float drive_p = 0.0;
+float drive_i = 0.0;
+float drive_d = 0.0;
+float drive_f = 0.0;
+float drive_out = 0.0;
+
+/**************************************************************************/
+/*!
+    @brief  Control program main
+    @param  argc    Arguement count
+    @param  argv    Arguement variables
+    @return Error code
+*/
+/**************************************************************************/
 int main(int argc, char *argv[])
 {
+    // ========================================================================
+    // Initalize system
+    // ========================================================================
     printf("=== ROBOCAR - CTRL: START ===\n");
 
     // Make sure ctrl-C stops the program under controlled circumstances
@@ -55,7 +100,11 @@ int main(int argc, char *argv[])
 
     // Initialize the control state machine to ESTOP mode
     ctrl_telem.mode = ESTOP;
+    // ========================================================================
 
+    // ========================================================================
+    // Configure and start real-time thread
+    // ========================================================================
     // Create attributes for an isolated real-time thread
     printf("Starting isolated soft real-time control loop thread...\n");
     pthread_attr_t attr = {};
@@ -83,11 +132,15 @@ int main(int argc, char *argv[])
         fprintf(stderr, "echo -1 > /proc/sys/kernel/sched_rt_runtime_us\n");
         exit(1);
     }
-
+    
     // Wait for the program to be done
     void *ignore = NULL;
     pthread_join(ctrl_thread, &ignore);
+    // ========================================================================
     
+    // ========================================================================
+    // Shutdown system
+    // ========================================================================
     // Real time thread exited
     printf("Real-time thread exited.\n");
 
@@ -100,10 +153,18 @@ int main(int argc, char *argv[])
     printf("Comm shared memory closed.\n");
 
     printf("=== ROBOCAR - CTRL: STOP ===\n");
+    // ========================================================================
 
     return 0;
 }
 
+/**************************************************************************/
+/*!
+    @brief  Control timer function calls the control loop function at
+            a specified frequency.
+    @return Error code
+*/
+/**************************************************************************/
 void *ctrl_timer_func(void *) {
 
     //  keep track of the passage of time at a 20-millisecond quantized interval
@@ -148,8 +209,20 @@ void *ctrl_timer_func(void *) {
     return NULL;
 }
 
+/**************************************************************************/
+/*!
+    @brief  Control loop function implements a state machine driven by an
+            external program to read the sensors and drive actuators.
+            Fault protection cuts motor power when communication with the
+            external program is lost.
+    @return Error code
+*/
+/**************************************************************************/
 int ctrl_loop(void)
 {
+    // ========================================================================
+    // Update telemetry
+    // ========================================================================
     // Update ToSleep for debug telemetry
     ctrl_telem.tosleep = tosleep;
 
@@ -165,8 +238,11 @@ int ctrl_loop(void)
         glue_print(ctrl_telem.glue_state);
         printf("CMDSTRPOS = %f, CMDDRVVEL = %f\n", ctrl_cmd.steering_pos, ctrl_cmd.drive_vel);
     #endif
+    // ========================================================================
 
+    // ========================================================================
     // Control state machine
+    // ========================================================================
     switch (ctrl_telem.mode)
     {
         case ESTOP:                             // Emergency Stop - Zero actuators
@@ -176,9 +252,29 @@ int ctrl_loop(void)
 
         case INIT:                              // Initialize drive parameters
             printf("MODE: INIT\n");
-
-            // TODO: Wiggle steering wheels to test/set range
-
+            // Zero steering and drive motor PID variables
+            steer_desired_pos = 0.0;
+            steer_actual_pos = 0.0;
+            steer_error_pos = 0.0;
+            steer_error_pos_prior = 0.0;
+            steer_i_accu = 0.0;
+            steer_p = 0.0;
+            steer_i = 0.0;
+            steer_d = 0.0;
+            steer_out = 0.0;
+            drive_desired_vel = 0.0;
+            drive_actual_vel = 0.0;
+            drive_error_vel = 0.0;
+            drive_error_vel_prior = 0.0;
+            drive_i_accu = 0.0;
+            drive_p = 0.0;
+            drive_i = 0.0;
+            drive_d = 0.0;
+            drive_f = 0.0;
+            drive_out = 0.0;
+            // Set motor values
+            glue_set_steering_motor(steer_out);
+            glue_set_drive_motor(drive_out);
             break;
 
         case IDLE:                              // Idle waiting for race to start
@@ -187,14 +283,84 @@ int ctrl_loop(void)
 
         case RUN:                               // Run the race
             printf("MODE: RUN\n");
+            // ================================================================
+            // Steering Position PID Controller
+            // ================================================================
+            // Convert steering encoder voltage to normalized steering position value
+            steer_actual_pos = STEER_SCALER * (STEER_ZERO_VAL - ctrl_telem.glue_state.steering_position);
+            
+            // Set commanded steering position as the new goal position
+            steer_desired_pos = ctrl_cmd.steering_pos;
 
-            // Delay to simulate number crunching
-            // TODO: Soon to be PID controllers
-            usleep(500);
+            // Calculate steering position error
+            steer_error_pos = steer_desired_pos - steer_actual_pos;
 
-            // Set Drive and Steering Motor to 5%
-            glue_set_drive_motor(0.1);
-            glue_set_steering_motor(0.1);
+            // Update integral accumulator
+            steer_i_accu = steer_i_accu + (steer_error_pos * DT);
+
+            // Steering PID
+            steer_p = STEER_P_GAIN * steer_error_pos;
+            steer_i = STEER_I_GAIN * steer_i_accu;
+            steer_d = STEER_D_GAIN * (steer_error_pos - steer_error_pos_prior);
+            steer_out = steer_p + steer_i + steer_d;
+            
+            // Store position error for next D term calculation
+            steer_error_pos_prior = steer_error_pos;
+
+            // Sanitize the steering motor output value
+            if(steer_out > STEER_OUT_LIMIT)
+            {
+                steer_out = STEER_OUT_LIMIT;
+            }
+            if(steer_out < -1.0 * STEER_OUT_LIMIT)
+            {
+                steer_out = -1.0 * STEER_OUT_LIMIT;
+            }
+            // ================================================================
+
+            // ================================================================
+            // Drive Velocity PIDF Controller
+            // ================================================================
+            // Convert drive motor voltage to normalize drive velocity value
+            drive_actual_vel = DRIVE_SCALER * (DRIVE_ZERO_VAL - ctrl_telem.glue_state.drive_velocity);
+
+            // Set commanded drive velocity as the new goal velocity
+            drive_desired_vel = ctrl_cmd.drive_vel;
+
+            // Calculate drive velocity error
+            drive_error_vel = drive_desired_vel - drive_actual_vel;
+
+            // Update integral accumulator
+            drive_i_accu = drive_i_accu + (drive_error_vel * DT);
+
+            // Drive PIDF
+            drive_p = DRIVE_P_GAIN * drive_error_vel;
+            drive_i = DRIVE_I_GAIN * drive_i_accu;
+            drive_d = DRIVE_D_GAIN * (drive_error_vel - drive_error_vel_prior);
+            drive_f = DRIVE_F_GAIN * drive_desired_vel;
+            drive_out = drive_p + drive_i + drive_d + drive_f;
+
+            // Store velocity error for next D term calculation
+            drive_error_vel_prior = drive_error_vel;
+
+            // Sanitize the drive motor output value
+            if(drive_out > DRIVE_OUT_LIMIT)
+            {
+                drive_out = DRIVE_OUT_LIMIT;
+            }
+            if(drive_out < -1.0 * DRIVE_OUT_LIMIT)
+            {
+                drive_out = -1.0 * DRIVE_OUT_LIMIT;
+            }
+            // ================================================================
+
+            // ================================================================
+            // Set steering and drive motor outputs
+            // ================================================================
+            glue_set_steering_motor(steer_out);
+            glue_set_drive_motor(drive_out);
+            // ================================================================
+
             break;
 
         case STOP:                              // Stop racing
@@ -219,11 +385,17 @@ int ctrl_loop(void)
             glue_estop();
             break;
     }
+    // ========================================================================
 
+    // ========================================================================
     // Copy the latest telemetry/command data from shared memory to local memory
+    // ========================================================================
     comm_transaction(&ctrl_cmd, &ctrl_telem);
+    // ========================================================================
 
+    // ========================================================================
     // Fault protection and mode command handler
+    // ========================================================================
     if(ctrl_telem.mode != FAULT)    // No faults, continue
     {
         // Timeout based deadman switch
@@ -259,10 +431,19 @@ int ctrl_loop(void)
             ctrl_telem.mode = ctrl_cmd.mode;
         }
     }
+    // ========================================================================
 
     return 1;
 }
 
-void sigint(int) {
+
+/**************************************************************************/
+/*!
+    @brief  Signal interrupt to kill real-time control thread
+    @return Error code
+*/
+/**************************************************************************/
+void sigint(int) 
+{
     ctrl_run = false;
 }

@@ -235,6 +235,16 @@ int glue_set_drive_motor(float drive)
     uint16_t inb = 0;
     uint16_t duty_cycle = 0;
 
+    // Sanitize drive value input and calculate duty cycle value
+    if (drive > 1.000 || drive < -1.000)
+    {
+        duty_cycle = 4096;      // Saturated full speed (both FWD/REV)
+    }
+    else
+    {
+        duty_cycle = (uint16_t)((float)fabs(drive)*4096.0); 
+    }
+
     // Set motor control direction
     if(drive > 0.000)           // Forward
     { 
@@ -251,9 +261,6 @@ int glue_set_drive_motor(float drive)
         ina = 0;
         inb = 0;
     }
-
-    // Set drive duty cycle
-    duty_cycle = (uint16_t)((float)fabs(drive)*4096.0);    
 
     // Update output
     pca9685_PWM_dc(&drive_output, 0, ina);	        // INA          
@@ -288,17 +295,28 @@ int glue_set_steering_motor(float drive)
 
     uint16_t in1 = 0;
     uint16_t in2 = 0;
+    uint16_t duty_cycle = 0;
+
+    // Sanitize drive value input and calculate duty cycle value
+    if (drive > 1.000 || drive < -1.000)
+    {
+        duty_cycle = 4096;      // Saturated full speed (both FWD/REV)
+    }
+    else
+    {
+        duty_cycle = (uint16_t)((float)fabs(drive)*4096.0); 
+    }
 
     // Set motor control direction
     if(drive > 0.000)           // Forward
     { 
-        in1 = (uint16_t)((float)fabs(drive)*4096.0);
-        in2 = 0; 
+        in1 = duty_cycle;
+        in2 = 0;
     }
     else if (drive < 0.000)     // Reverse
     { 
         in1 = 0; 
-        in2 = (uint16_t)((float)fabs(drive)*4096.0);
+        in2 = duty_cycle;
     }
     else                        // Brake
     {
@@ -306,6 +324,7 @@ int glue_set_steering_motor(float drive)
         in2 = 0;
     }
 
+    // Update output
     pca9685_PWM_dc(&drive_output, 3, in1);     // IN1
     pca9685_PWM_dc(&drive_output, 4, in2);     // IN2
 
