@@ -19,13 +19,13 @@ TARGETS = ctrl
 all: obj $(TARGETS)
 
 clean:
-    find . -name "*.o" | xargs rm -f
-    $(RM) *.o *.so *~ a.out depend $(TARGETS) -rf
+	find . -name "*.o" | xargs rm -f
+	$(RM) *.o *.so *~ a.out depend $(TARGETS) -rf
 
 ctrl:$(obj)
-    $(CXX) $(CXXFLAGS) -o $@ $^ $(LDFLAGS)
+	$(CXX) $(CXXFLAGS) -o $@ $^ $(LDFLAGS)
 
 depend:$(csrc) $(ccsrc)
-    $(CC) $(CFLAGS) -MM $^ > $@
+	$(CC) $(CFLAGS) -MM $^ > $@
 
 -include depend
