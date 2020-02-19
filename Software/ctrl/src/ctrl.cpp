@@ -132,12 +132,12 @@ int main(int argc, char *argv[])
         fprintf(stderr, "echo -1 > /proc/sys/kernel/sched_rt_runtime_us\n");
         exit(1);
     }
-    
+
     // Wait for the program to be done
     void *ignore = NULL;
     pthread_join(ctrl_thread, &ignore);
     // ========================================================================
-    
+
     // ========================================================================
     // Shutdown system
     // ========================================================================
@@ -228,7 +228,7 @@ int ctrl_loop(void)
 
     // Incremement timestamp
     ctrl_telem.timestamp += 1;
-    
+
     // Read and print state
     ctrl_telem.glue_state = glue_state_update();
 
@@ -288,7 +288,7 @@ int ctrl_loop(void)
             // ================================================================
             // Convert steering encoder voltage to normalized steering position value
             steer_actual_pos = STEER_SCALER * (STEER_ZERO_VAL - ctrl_telem.glue_state.steer_position);
-            
+
             // Set commanded steering position as the new goal position
             steer_desired_pos = ctrl_cmd.steer_pos;
 
@@ -298,12 +298,24 @@ int ctrl_loop(void)
             // Update integral accumulator
             steer_i_accu = steer_i_accu + (steer_error_pos * DT);
 
-            // Steering PID
+            // Steering PID terms
             steer_p = STEER_P_GAIN * steer_error_pos;
             steer_i = STEER_I_GAIN * steer_i_accu;
             steer_d = STEER_D_GAIN * (steer_error_pos - steer_error_pos_prior);
+
+            // Sanitize integral term
+            if(steer_i > STEER_I_LIMIT)
+            {
+                steer_i = STEER_I_LIMIT;
+            }
+            if(steer_i < -1.0*STEER_I_LIMIT)
+            {
+                steer_i = -1.0*STEER_I_LIMIT;
+            }
+
+            // Caluclate PID output
             steer_out = steer_p + steer_i + steer_d;
-            
+
             // Store position error for next D term calculation
             steer_error_pos_prior = steer_error_pos;
 
@@ -333,11 +345,23 @@ int ctrl_loop(void)
             // Update integral accumulator
             drive_i_accu = drive_i_accu + (drive_error_vel * DT);
 
-            // Drive PIDF
+            // Drive PIDF terms
             drive_p = DRIVE_P_GAIN * drive_error_vel;
             drive_i = DRIVE_I_GAIN * drive_i_accu;
             drive_d = DRIVE_D_GAIN * (drive_error_vel - drive_error_vel_prior);
             drive_f = DRIVE_F_GAIN * drive_desired_vel;
+
+            // Sanitize integral accumulator
+            if(drive_i > DRIVE_I_LIMIT)
+            {
+                drive_i = DRIVE_I_LIMIT;
+            }
+            if(drive_i < -1.0*DRIVE_I_LIMIT)
+            {
+                drive_i = -1.0*DRIVE_I_LIMIT;
+            }
+
+            // Calculate PIDF output
             drive_out = drive_p + drive_i + drive_d + drive_f;
 
             // Store velocity error for next D term calculation
@@ -464,7 +488,7 @@ void ctrl_print_pid(void)
         steer_p, \
         steer_i, \
         steer_d);
-    
+
     printf("DRV_ERR = %.5f, DRV_OUT = %.5f, DRV_P = %.5f, DRV_I = %.5f, DRV_D = %.5f, \r\n",\
         drive_error_vel, \
         drive_out, \
