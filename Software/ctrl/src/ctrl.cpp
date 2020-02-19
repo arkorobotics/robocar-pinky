@@ -459,7 +459,7 @@ void sigint(int)
 void ctrl_print_pid(void)
 {
     printf("STR_ERR = %.5f, STR_OUT = %.5f, STR_P = %.5f, STR_I = %.5f, STR_D = %.5f, ",\
-        steer_error_vel, \
+        steer_error_pos, \
         steer_out, \
         steer_p, \
         steer_i, \

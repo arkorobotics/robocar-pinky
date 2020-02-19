@@ -37,8 +37,6 @@ extern "C" {
 void *ctrl_timer_func(void *);
 void sigint(int);
 int ctrl_loop(void);
-int acquire(int id);
-int release(int id);
-
+void ctrl_print_pid(void);
 
 #endif // __CTRL_H__
