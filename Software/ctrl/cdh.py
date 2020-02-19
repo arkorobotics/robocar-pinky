@@ -61,7 +61,7 @@ while(True):
     # C&DH
 
     # Generate new command packet
-    cmd_packet = pack('=LLff', int(Mode.RUN), heartbeat, 0.3, 0.1)
+    cmd_packet = pack('=LLff', int(Mode.RUN), heartbeat, 0.0, 0.0)
 
     # Print 
     print(telem_data)
