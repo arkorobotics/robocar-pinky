@@ -192,7 +192,7 @@ Glue_State glue_state_update(void)
     ads1115_set_multiplexer(&veh_state_adc, MUX_SINGLE_0);
     ads1115_start_conversion(&veh_state_adc);
     usleep(2000);   // Wait for conversion
-    glue_state.steering_position = (float)ads1115_read(&veh_state_adc)*4.096/32767.0;
+    glue_state.steer_position = (float)ads1115_read(&veh_state_adc)*4.096/32767.0;
 
     ads1115_set_multiplexer(&veh_state_adc, MUX_SINGLE_1);
     ads1115_start_conversion(&veh_state_adc);
@@ -336,7 +336,7 @@ void glue_print(Glue_State glue_state)
     printf("VMOTOR = %i, VLOGIC = %i, STRPOS = %.5f, DRVTRQ = %.5f, DRVVEL = %.5f\r\n",\
             glue_state.vmotor_battery_mv,\
             glue_state.vlogic_battery_mv,\
-            glue_state.steering_position,\
+            glue_state.steer_position,\
             glue_state.drive_torque,\
             glue_state.drive_velocity);
 }

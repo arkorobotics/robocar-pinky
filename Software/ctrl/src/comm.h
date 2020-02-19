@@ -19,7 +19,7 @@ struct Ctrl_Cmd
 {
     uint32_t mode;
     uint32_t heartbeat;
-    float steering_pos;
+    float steer_pos;
     float drive_vel;
 } __attribute__((packed));
 

@@ -114,7 +114,7 @@ int main(int argc, char *argv[])
     CPU_ZERO(&cpuset);
     CPU_SET(1, &cpuset);
     pthread_attr_setaffinity_np(&attr, 1, &cpuset);
-    // Make it use FIFO policy for real-time scheduling
+    // Make it use FIFO policy for "soft" real-time scheduling
     pthread_attr_setschedpolicy(&attr, SCHED_FIFO);
     pthread_attr_setinheritsched(&attr, PTHREAD_EXPLICIT_SCHED);
     // Set the priority
@@ -233,10 +233,10 @@ int ctrl_loop(void)
     ctrl_telem.glue_state = glue_state_update();
 
     // If in debug mode, print raw telem
-    #ifdef DEBUG
+    #ifdef TELEM_DEBUG
         printf("TIME = %i,", ctrl_telem.timestamp);
         glue_print(ctrl_telem.glue_state);
-        printf("CMDSTRPOS = %f, CMDDRVVEL = %f\n", ctrl_cmd.steering_pos, ctrl_cmd.drive_vel);
+        printf("CMDSTRPOS = %f, CMDDRVVEL = %f\n", ctrl_cmd.steer_pos, ctrl_cmd.drive_vel);
     #endif
     // ========================================================================
 
@@ -287,10 +287,10 @@ int ctrl_loop(void)
             // Steering Position PID Controller
             // ================================================================
             // Convert steering encoder voltage to normalized steering position value
-            steer_actual_pos = STEER_SCALER * (STEER_ZERO_VAL - ctrl_telem.glue_state.steering_position);
+            steer_actual_pos = STEER_SCALER * (STEER_ZERO_VAL - ctrl_telem.glue_state.steer_position);
             
             // Set commanded steering position as the new goal position
-            steer_desired_pos = ctrl_cmd.steering_pos;
+            steer_desired_pos = ctrl_cmd.steer_pos;
 
             // Calculate steering position error
             steer_error_pos = steer_desired_pos - steer_actual_pos;
@@ -361,6 +361,9 @@ int ctrl_loop(void)
             glue_set_drive_motor(drive_out);
             // ================================================================
 
+            #ifdef PID_TUNING_DEBUG
+                ctrl_print_pid();
+            #endif
             break;
 
         case STOP:                              // Stop racing
@@ -436,7 +439,6 @@ int ctrl_loop(void)
     return 1;
 }
 
-
 /**************************************************************************/
 /*!
     @brief  Signal interrupt to kill real-time control thread
@@ -446,4 +448,27 @@ int ctrl_loop(void)
 void sigint(int) 
 {
     ctrl_run = false;
+}
+
+/**************************************************************************/
+/*!
+    @brief  Print PID data for debug
+    @return None
+*/
+/**************************************************************************/
+void ctrl_print_pid(void)
+{
+    printf("STR_ERR = %.5f, STR_OUT = %.5f, STR_P = %.5f, STR_I = %.5f, STR_D = %.5f, ",\
+        steer_error_vel, \
+        steer_out, \
+        steer_p, \
+        steer_i, \
+        steer_d);
+    
+    printf("DRV_ERR = %.5f, DRV_OUT = %.5f, DRV_P = %.5f, DRV_I = %.5f, DRV_D = %.5f, \r\n",\
+        drive_error_vel, \
+        drive_out, \
+        drive_p, \
+        drive_i, \
+        drive_d);
 }
