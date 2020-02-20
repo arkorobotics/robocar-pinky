@@ -19,9 +19,9 @@
 #define STEER_RIGHT_MAX_VAL 1.800
 #define STEER_SCALER        (STEER_RIGHT_MAX_VAL - STEER_LEFT_MAX_VAL)/2
 
-#define DRIVE_P_GAIN        0.000
+#define DRIVE_P_GAIN        0.010
 #define DRIVE_I_GAIN        0.001
-#define DRIVE_D_GAIN        0.000
+#define DRIVE_D_GAIN        0.010
 #define DRIVE_F_GAIN        0.800
 #define DRIVE_I_LIMIT       1.000
 #define DRIVE_OUT_LIMIT     0.600
