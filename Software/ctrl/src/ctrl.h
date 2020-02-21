@@ -2,12 +2,12 @@
 #define __CTRL_H__
 
 // Control Configuration Parameters
-//#define TELEM_DEBUG             1
-#define PID_TUNING_DEBUG        1
+#define TELEM_DEBUG             1
+//#define PID_TUNING_DEBUG        1
 #define CTRL_LOOP_PERIOD        20000000                   // dt in nanoseconds
 #define MAX_MISSED_HEARTBEAT    25                         // Fault if exceeded
 
-#define DT                      (CTRL_LOOP_PERIOD/1000000) // dt in milliseconds              
+#define DT                      (CTRL_LOOP_PERIOD/1000000) // dt in milliseconds
 
 #define STEER_P_GAIN        1.000
 #define STEER_I_GAIN        0.005

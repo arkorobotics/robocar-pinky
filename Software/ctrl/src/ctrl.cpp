@@ -119,7 +119,7 @@ int main(int argc, char *argv[])
     pthread_attr_setinheritsched(&attr, PTHREAD_EXPLICIT_SCHED);
     // Set the priority
     sched_param param = {};
-    param.sched_priority = 30;
+    param.sched_priority = 10;
     pthread_attr_setschedparam(&attr, &param);
 
     // Create the real-time thread
@@ -180,6 +180,9 @@ void *ctrl_timer_func(void *) {
         if(tosleep < 0)
         {
             printf("ERROR: SCHEDULED CONTROL LOOP ROUTINE OVERRAN!!! - TOSLEEP = %" PRId64 "\n", tosleep);
+            printf("RESETTING CLOCK...");
+            last = now;
+            tosleep = 0;
         }
         else
         {

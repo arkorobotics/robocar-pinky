@@ -9,7 +9,7 @@ enum Ctrl_Mode {
     ESTOP,
     INIT,
     IDLE,
-    RUN, 
+    RUN,
     STOP,
     FAULT,
     CLEARFAULT
