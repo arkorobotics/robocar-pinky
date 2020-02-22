@@ -113,22 +113,22 @@ tr_np = mirror_ref.m
 while(True):
 
     # Lock semaphore, read/write to CTRL memory, and unlock semaphore
-    #telem_sem.acquire()
-    #cmd_sem.acquire()
+    telem_sem.acquire()
+    cmd_sem.acquire()
 
-    #telem_packet = telem_memory.read()
-    #cmd_memory.write(cmd_packet)
-    #cmd_data_ro = cmd_memory.read()
+    telem_packet = telem_memory.read()
+    cmd_memory.write(cmd_packet)
+    cmd_data_ro = cmd_memory.read()
 
-    #telem_sem.release()
-    #cmd_sem.release()
+    telem_sem.release()
+    cmd_sem.release()
 
     # Unpack telemetry and read-back command data
-    #telem_data = unpack('=LqLLLfff', telem_packet)
-    #cmd_data_ro = unpack('=LLff', cmd_data_ro)
+    telem_data = unpack('=LqLLLfff', telem_packet)
+    cmd_data_ro = unpack('=LLff', cmd_data_ro)
 
     # Generate new command packet
-    cmd_packet = pack('=LLff', int(Mode.RUN), heartbeat, 0.0, 0.2)
+    cmd_packet = pack('=LLff', int(Mode.RUN), heartbeat, 0.0, 0.1)
 
 
     # ==========
@@ -168,8 +168,8 @@ while(True):
             sys.stdout.flush()
 
     # Print
-    #print(telem_data)
-    #print(cmd_data_ro)
+    print(telem_data)
+    print(cmd_data_ro)
 
     # Increment Heartbeat Count
     heartbeat = heartbeat + 1

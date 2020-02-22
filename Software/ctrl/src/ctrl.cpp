@@ -35,7 +35,7 @@ extern "C" {
 // Local Variables
 bool volatile ctrl_run = true;                  // Control loop run state
 
-int64_t ctrl_loop_period = CTRL_LOOP_PERIOD;	// 20ms -> 50Hz, value in nanoseconds
+int64_t ctrl_loop_period = CTRL_LOOP_PERIOD;	// 50ms -> 20Hz, value in nanoseconds
 int64_t tosleep;                                // slack time, nanoseconds to sleep till next ctrl loop call 
 
 uint32_t missed_heartbeat_count = 0;            // Count missed heartbeat, estop at max cnt
@@ -109,17 +109,17 @@ int main(int argc, char *argv[])
     printf("Starting isolated soft real-time control loop thread...\n");
     pthread_attr_t attr = {};
     pthread_attr_init(&attr);
-    // Lift the thread off core 0, which takes system interrupts
+    // Lift the thread off core 3, which takes system interrupts
     cpu_set_t cpuset = {};
     CPU_ZERO(&cpuset);
-    CPU_SET(1, &cpuset);
+    CPU_SET(3, &cpuset);
     pthread_attr_setaffinity_np(&attr, 1, &cpuset);
     // Make it use FIFO policy for "soft" real-time scheduling
     pthread_attr_setschedpolicy(&attr, SCHED_FIFO);
     pthread_attr_setinheritsched(&attr, PTHREAD_EXPLICIT_SCHED);
     // Set the priority
     sched_param param = {};
-    param.sched_priority = 10;
+    param.sched_priority = 99;
     pthread_attr_setschedparam(&attr, &param);
 
     // Create the real-time thread
@@ -492,10 +492,11 @@ void ctrl_print_pid(void)
         steer_i, \
         steer_d);
 
-    printf("DRV_ERR = %.5f, DRV_OUT = %.5f, DRV_P = %.5f, DRV_I = %.5f, DRV_D = %.5f, \r\n",\
+    printf("DRV_ERR = %.5f, DRV_OUT = %.5f, DRV_P = %.5f, DRV_I = %.5f, DRV_D = %.5f, DRV_F = %.5f\r\n",\
         drive_error_vel, \
         drive_out, \
         drive_p, \
         drive_i, \
-        drive_d);
+        drive_d, \
+        drive_f);
 }
