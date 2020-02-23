@@ -128,7 +128,7 @@ while(True):
     cmd_data_ro = unpack('=LLff', cmd_data_ro)
 
     # Generate new command packet
-    cmd_packet = pack('=LLff', int(Mode.RUN), heartbeat, 0.0, 0.1)
+    cmd_packet = pack('=LLff', int(Mode.RUN), heartbeat, 0.0, 0.2)
 
 
     # ==========

@@ -2,7 +2,7 @@
 #define __CTRL_H__
 
 // Control Configuration Parameters
-//#define TELEM_DEBUG             1
+#define TELEM_DEBUG             1
 #define PID_TUNING_DEBUG        1
 #define CTRL_LOOP_PERIOD        50000000                   // dt in nanoseconds
 #define MAX_MISSED_HEARTBEAT    25                         // Fault if exceeded
@@ -23,7 +23,7 @@
 #define DRIVE_I_GAIN        0.0005
 #define DRIVE_D_GAIN        0.000
 #define DRIVE_F_GAIN        0.800
-#define DRIVE_I_LIMIT       0.200
+#define DRIVE_I_LIMIT       0.600
 #define DRIVE_OUT_LIMIT     0.600
 #define DRIVE_REV_MAX_VAL   2.600
 #define DRIVE_ZERO_VAL      1.400
