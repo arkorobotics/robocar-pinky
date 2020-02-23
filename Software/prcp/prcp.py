@@ -5,6 +5,7 @@ from enum import IntEnum
 
 import pyzed.sl as sl
 import math
+import cv2
 import numpy as np
 import sys
 import os
@@ -102,12 +103,23 @@ runtime_parameters.sensing_mode = sl.SENSING_MODE.STANDARD  # Use STANDARD sensi
 # Capture 50 images and depth, then stop
 i = 0
 image = sl.Mat()
-depth = sl.Mat()
+#depth = sl.Mat()
 point_cloud = sl.Mat()
+
+# Create an RGBA sl.Mat object
+image_zed = sl.Mat(zed.get_camera_information().camera_resolution.width, zed.get_camera_information().camera_resolution.height, sl.MAT_TYPE.U8_C4)
+
+# Retrieve data in a numpy array with get_data()
+image_ocv = image_zed.get_data()
+
+# Create a sl.Mat with float type (32-bit)
+depth = sl.Mat(zed.get_camera_information().camera_resolution.width, zed.get_camera_information().camera_resolution.height, sl.MAT_TYPE.F32_C1)
+
 
 mirror_ref = sl.Transform()
 mirror_ref.set_translation(sl.Translation(2.75,4.0,0))
 tr_np = mirror_ref.m
+
 
 # Main Loop
 while(True):
@@ -127,14 +139,9 @@ while(True):
     telem_data = unpack('=LqLLLfff', telem_packet)
     cmd_data_ro = unpack('=LLff', cmd_data_ro)
 
-    # Generate new command packet
-    cmd_packet = pack('=LLff', int(Mode.RUN), heartbeat, 0.0, 0.2)
-
-
     # ==========
     # prcp loop
     # ==========
-
 
     # A new image is available if grab() returns SUCCESS
     if zed.grab(runtime_parameters) == sl.ERROR_CODE.SUCCESS:
@@ -166,6 +173,13 @@ while(True):
         else:
             print("Can't estimate distance at this position, move the camera\n")
             sys.stdout.flush()
+
+        image_depth_ocv = depth.get_data()
+        cv2.imshow("Image", image_depth_ocv)
+        cv2.waitKey()
+
+    # Generate new command packet
+    cmd_packet = pack('=LLff', int(Mode.RUN), heartbeat, 0.0, 0.2)
 
     # Print
     print(telem_data)
