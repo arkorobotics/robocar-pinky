@@ -1,14 +1,26 @@
-import sysv_ipc
 from struct import *
 from time import sleep
 from enum import IntEnum
 
-import pyzed.sl as sl
+import os
+import sys
+import sysv_ipc
 import math
 import cv2
 import numpy as np
-import sys
-import os
+import matplotlib.mlab as mlab
+import matplotlib.pyplot as plt
+import pyzed.sl as sl
+
+np.set_printoptions(threshold=sys.maxsize)
+
+img_height = 720
+img_width = 1280
+
+window_left = 0
+window_right = 1280
+window_top = 300
+window_bottom = 600
 
 # Get the number of CPUs
 # in the system
@@ -152,27 +164,36 @@ while(True):
         # Retrieve colored point cloud. Point cloud is aligned on the left image.
         zed.retrieve_measure(point_cloud, sl.MEASURE.XYZRGBA)
 
-        # Get and print distance value in mm at the center of the image
-        # We measure the distance camera - object using Euclidean distance
-        x = round(image.get_width() / 2)
-        y = round(image.get_height() / 2)
-        err, point_cloud_value = point_cloud.get_value(x, y)
+        
+        # Convert BGR to HSV
+        image = cv2.medianBlur(image,5)
+        hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
 
-        distance = math.sqrt(point_cloud_value[0] * point_cloud_value[0] +
-                             point_cloud_value[1] * point_cloud_value[1] +
-                             point_cloud_value[2] * point_cloud_value[2])
+        # define range of blue color in HSV
+        lower_yellow = np.array([20,80,80])
+        upper_yellow = np.array([46,255,255])
 
-        point_cloud_np = point_cloud.get_data()
-        point_cloud_np.dot(tr_np)
+        # Threshold the HSV image to get only blue colors
+        mask = cv2.inRange(hsv, lower_yellow, upper_yellow)
 
-        if not np.isnan(distance) and not np.isinf(distance):
-            distance = round(distance)
-            print("Distance to Camera at ({0}, {1}): {2} mm\n".format(x, y, distance))
-            # Increment the loop
-            i = i + 1
-        else:
-            print("Can't estimate distance at this position, move the camera\n")
-            sys.stdout.flush()
+        window_histo = np.zeros(window_right - window_left)
+
+        for col in range(window_left, window_right):
+            for row in range(window_top, window_bottom):
+                window_histo[col] += mask[row,col]
+
+        mean = np.int(np.average(np.arange(window_histo.size), weights=window_histo))
+        print(mean)
+
+        # Bitwise-AND mask and original image
+        res = cv2.bitwise_and(image,image, mask= mask)
+        cv2.line(res,(mean,window_top),(mean,window_bottom),(0,0,255),5)
+
+        cv2.imshow('frame',image)
+        #cv2.imshow('mask',mask)
+        cv2.imshow('res',res)
+        cv2.waitKey()
+        cv2.destroyAllWindows()
 
         image_depth_ocv = depth.get_data()
         cv2.imshow("Image", image_depth_ocv)
