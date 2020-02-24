@@ -119,7 +119,7 @@ int main(int argc, char *argv[])
     pthread_attr_setinheritsched(&attr, PTHREAD_EXPLICIT_SCHED);
     // Set the priority
     sched_param param = {};
-    param.sched_priority = 99;
+    param.sched_priority = 30;
     pthread_attr_setschedparam(&attr, &param);
 
     // Create the real-time thread
@@ -492,7 +492,8 @@ void ctrl_print_pid(void)
         steer_i, \
         steer_d);
 
-    printf("DRV_ERR = %.5f, DRV_OUT = %.5f, DRV_P = %.5f, DRV_I = %.5f, DRV_D = %.5f, DRV_F = %.5f\r\n",\
+    printf("DRV_DES = %.5f, DRV_ERR = %.5f, DRV_OUT = %.5f, DRV_P = %.5f, DRV_I = %.5f, DRV_D = %.5f, DRV_F = %.5f\r\n",\
+        drive_desired_vel, \
         drive_error_vel, \
         drive_out, \
         drive_p, \

@@ -8,59 +8,24 @@ import sysv_ipc
 import math
 import cv2
 import numpy as np
-import matplotlib.mlab as mlab
-import matplotlib.pyplot as plt
+#import matplotlib
+#import matplotlib.mlab as mlab
+#import matplotlib.pyplot as plt
 import pyzed.sl as sl
+
+#matplotlib.use('qt4agg')
 
 np.set_printoptions(threshold=sys.maxsize)
 
-img_height = 720
-img_width = 1280
+img_height = 376
+img_width = 672
 
 window_left = 0
-window_right = 1280
-window_top = 300
-window_bottom = 600
+window_right = 672
+window_center = np.int((window_right - window_left)/2)
 
-# Get the number of CPUs
-# in the system
-# using os.cpu_count() method
-print("Number of CPUs:", os.cpu_count())
-
-# Get the set of CPUs
-# on which the calling process
-# is eligible to run. using
-# os.sched_getaffinity() method
-# 0 as PID represnts the
-# calling process
-pid = 0
-affinity = os.sched_getaffinity(pid)
-
-# Print the result
-print("Process is eligibl to run on:", affinity)
-
-# Change the CPU affinity mask
-# of the calling process
-# using os.sched_setaffinity() method
-
-# Below CPU affinity mask will
-# restrict a process to only
-# these 2 CPUs (0, 1) i.e process can
-# run on these CPUs only
-affinity_mask = {1}
-pid = 0
-os.sched_setaffinity(0, affinity_mask)
-print("CPU affinity mask is modified for process id % s" % pid)
-
-
-# Now again, Get the set of CPUs
-# on which the calling process
-# is eligible to run.
-pid = 0
-affinity = os.sched_getaffinity(pid)
-
-# Print the result
-print("Now, process is eligibl to run on:", affinity)
+window_top = 250
+window_bottom = 300
 
 # Shared memory and semaphone variables
 cmd_key = 1000                   # CMD shared memory key
@@ -92,6 +57,9 @@ heartbeat = 0
 cmd_steer_pos = 0.0
 cmd_drive_vel = 0.0
 
+# CTRL calc variabls
+cmd_steer_max = 0.5
+
 # Intialize command packet
 cmd_packet = pack('=LLff', mode, heartbeat, cmd_steer_pos, cmd_drive_vel)
 
@@ -102,6 +70,9 @@ zed = sl.Camera()
 init_params = sl.InitParameters()
 init_params.depth_mode = sl.DEPTH_MODE.PERFORMANCE  # Use PERFORMANCE depth mode
 init_params.coordinate_units = sl.UNIT.MILLIMETER  # Use milliliter units (for depth measurements)
+# Set configuration parameters
+init_params.camera_resolution = sl.RESOLUTION.VGA
+init_params.camera_fps = 100
 
 # Open the camera
 err = zed.open(init_params)
@@ -115,7 +86,7 @@ runtime_parameters.sensing_mode = sl.SENSING_MODE.STANDARD  # Use STANDARD sensi
 # Capture 50 images and depth, then stop
 i = 0
 image = sl.Mat()
-#depth = sl.Mat()
+depth = sl.Mat()
 point_cloud = sl.Mat()
 
 # Create an RGBA sl.Mat object
@@ -162,12 +133,13 @@ while(True):
         # Retrieve depth map. Depth is aligned on the left image
         zed.retrieve_measure(depth, sl.MEASURE.DEPTH)
         # Retrieve colored point cloud. Point cloud is aligned on the left image.
-        zed.retrieve_measure(point_cloud, sl.MEASURE.XYZRGBA)
+        #zed.retrieve_measure(point_cloud, sl.MEASURE.XYZRGBA)
 
-        
+        img = image.get_data()
+
         # Convert BGR to HSV
-        image = cv2.medianBlur(image,5)
-        hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
+        img = cv2.medianBlur(img,5)
+        hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
 
         # define range of blue color in HSV
         lower_yellow = np.array([20,80,80])
@@ -186,21 +158,22 @@ while(True):
         print(mean)
 
         # Bitwise-AND mask and original image
-        res = cv2.bitwise_and(image,image, mask= mask)
+        res = cv2.bitwise_and(img,img, mask= mask)
         cv2.line(res,(mean,window_top),(mean,window_bottom),(0,0,255),5)
 
-        cv2.imshow('frame',image)
-        #cv2.imshow('mask',mask)
-        cv2.imshow('res',res)
-        cv2.waitKey()
-        cv2.destroyAllWindows()
+        cv2.imshow('road-o-vision',res)
 
-        image_depth_ocv = depth.get_data()
-        cv2.imshow("Image", image_depth_ocv)
-        cv2.waitKey()
+#        image_depth_ocv = depth.get_data()
+#        cv2.imshow('depth', image_depth_ocv)
+
+        cv2.waitKey(1)
+
+    # Calculate CMD variables
+    cmd_steer_pos = -1.0*cmd_steer_max*(mean - window_center)/((window_right - window_left)/2)
+    cmd_drive_vel = 0.0
 
     # Generate new command packet
-    cmd_packet = pack('=LLff', int(Mode.RUN), heartbeat, 0.0, 0.2)
+    cmd_packet = pack('=LLff', int(Mode.RUN), heartbeat, cmd_steer_pos, cmd_drive_vel)
 
     # Print
     print(telem_data)
@@ -209,9 +182,7 @@ while(True):
     # Increment Heartbeat Count
     heartbeat = heartbeat + 1
 
-    # Sleep for 20ms to simulate future vision processing load
-    sleep(0.02)
-
+cv2.destroyAllWindows()
 
 # Close the camera
 zed.close()

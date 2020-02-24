@@ -6,6 +6,11 @@ Pinky Perception Software
 1. Install sysv_ipc:
 ```
 $ pip3 install sysv_ipc
+$ pip3 install numpy
+$ pip3 install PyQt5
+$ pip3 install matplotlib
+$ pip3 install opencv-python
+$ pip3 install opencv-contrib-python
 ```
 
 2. Install ZED Mini SDK 3.0.2:
