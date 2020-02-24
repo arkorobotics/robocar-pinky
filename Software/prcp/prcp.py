@@ -24,7 +24,7 @@ window_left = 0
 window_right = 672
 window_center = np.int((window_right - window_left)/2)
 
-window_top = 250
+window_top = 200
 window_bottom = 300
 
 # Shared memory and semaphone variables
@@ -142,13 +142,13 @@ while(True):
         hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
 
         # define range of blue color in HSV
-        lower_yellow = np.array([20,80,80])
+        lower_yellow = np.array([20,60,60])
         upper_yellow = np.array([46,255,255])
 
         # Threshold the HSV image to get only blue colors
         mask = cv2.inRange(hsv, lower_yellow, upper_yellow)
 
-        window_histo = np.zeros(window_right - window_left)
+        window_histo = np.ones(window_right - window_left)
 
         for col in range(window_left, window_right):
             for row in range(window_top, window_bottom):
@@ -170,7 +170,7 @@ while(True):
 
     # Calculate CMD variables
     cmd_steer_pos = -1.0*cmd_steer_max*(mean - window_center)/((window_right - window_left)/2)
-    cmd_drive_vel = 0.0
+    cmd_drive_vel = 0.1
 
     # Generate new command packet
     cmd_packet = pack('=LLff', int(Mode.RUN), heartbeat, cmd_steer_pos, cmd_drive_vel)

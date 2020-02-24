@@ -343,7 +343,14 @@ int ctrl_loop(void)
             drive_desired_vel = ctrl_cmd.drive_vel;
 
             // Calculate drive velocity error
-            drive_error_vel = drive_desired_vel - drive_actual_vel;
+            if(drive_desired_vel > 0.01 || drive_desired_vel < -0.01)
+            {
+                drive_error_vel = drive_desired_vel - drive_actual_vel;
+            }
+            else
+            {
+                drive_error_vel = 0.0;
+            }
 
             // Update integral accumulator
             drive_i_accu = drive_i_accu + (drive_error_vel * DT);
@@ -492,8 +499,9 @@ void ctrl_print_pid(void)
         steer_i, \
         steer_d);
 
-    printf("DRV_DES = %.5f, DRV_ERR = %.5f, DRV_OUT = %.5f, DRV_P = %.5f, DRV_I = %.5f, DRV_D = %.5f, DRV_F = %.5f\r\n",\
+    printf("DRV_DES = %.5f, DRV_ACT = %.5f, DRV_ERR = %.5f, DRV_OUT = %.5f, DRV_P = %.5f, DRV_I = %.5f, DRV_D = %.5f, DRV_F = %.5f\r\n",\
         drive_desired_vel, \
+        drive_actual_vel, \
         drive_error_vel, \
         drive_out, \
         drive_p, \
