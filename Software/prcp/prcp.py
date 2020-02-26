@@ -24,8 +24,8 @@ window_left = 0
 window_right = 672
 window_center = np.int((window_right - window_left)/2)
 
-window_top = 200
-window_bottom = 300
+window_top = 230
+window_bottom = 340
 
 # Shared memory and semaphone variables
 cmd_key = 1000                   # CMD shared memory key
@@ -58,7 +58,7 @@ cmd_steer_pos = 0.0
 cmd_drive_vel = 0.0
 
 # CTRL calc variabls
-cmd_steer_max = 0.5
+cmd_steer_max = 1.0
 
 # Intialize command packet
 cmd_packet = pack('=LLff', mode, heartbeat, cmd_steer_pos, cmd_drive_vel)
@@ -68,8 +68,8 @@ zed = sl.Camera()
 
 # Create a InitParameters object and set configuration parameters
 init_params = sl.InitParameters()
-init_params.depth_mode = sl.DEPTH_MODE.PERFORMANCE  # Use PERFORMANCE depth mode
-init_params.coordinate_units = sl.UNIT.MILLIMETER  # Use milliliter units (for depth measurements)
+#init_params.depth_mode = sl.DEPTH_MODE.PERFORMANCE  # Use PERFORMANCE depth mode
+#init_params.coordinate_units = sl.UNIT.MILLIMETER  # Use milliliter units (for depth measurements)
 # Set configuration parameters
 init_params.camera_resolution = sl.RESOLUTION.VGA
 init_params.camera_fps = 100
@@ -103,6 +103,15 @@ mirror_ref = sl.Transform()
 mirror_ref.set_translation(sl.Translation(2.75,4.0,0))
 tr_np = mirror_ref.m
 
+if zed.grab(runtime_parameters) == sl.ERROR_CODE.SUCCESS:
+    # Retrieve left image
+    zed.retrieve_image(image, sl.VIEW.LEFT)
+
+    img = image.get_data()
+
+    # Convert BGR to HSV
+    img = cv2.medianBlur(img,5)
+    hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
 
 # Main Loop
 while(True):
@@ -131,18 +140,18 @@ while(True):
         # Retrieve left image
         zed.retrieve_image(image, sl.VIEW.LEFT)
         # Retrieve depth map. Depth is aligned on the left image
-        zed.retrieve_measure(depth, sl.MEASURE.DEPTH)
+        #zed.retrieve_measure(depth, sl.MEASURE.DEPTH)
         # Retrieve colored point cloud. Point cloud is aligned on the left image.
         #zed.retrieve_measure(point_cloud, sl.MEASURE.XYZRGBA)
 
         img = image.get_data()
 
         # Convert BGR to HSV
-        img = cv2.medianBlur(img,5)
+#        img = cv2.medianBlur(img,1)
         hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
 
         # define range of blue color in HSV
-        lower_yellow = np.array([20,60,60])
+        lower_yellow = np.array([20,100,100])
         upper_yellow = np.array([46,255,255])
 
         # Threshold the HSV image to get only blue colors

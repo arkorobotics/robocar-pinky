@@ -119,7 +119,7 @@ int main(int argc, char *argv[])
     pthread_attr_setinheritsched(&attr, PTHREAD_EXPLICIT_SCHED);
     // Set the priority
     sched_param param = {};
-    param.sched_priority = 30;
+    param.sched_priority = 1;
     pthread_attr_setschedparam(&attr, &param);
 
     // Create the real-time thread
