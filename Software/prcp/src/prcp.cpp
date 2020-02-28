@@ -54,18 +54,27 @@ const uint32_t window_bottom = 320;
 Ctrl_Cmd ctrl_cmd;                              // Command data from C&DH
 Ctrl_Telem ctrl_telem;                          // Telemetry data to C&DH
 
-int main(int argc, char **argv) 
+int main(int argc, char **argv)
 {
     // CTRL Command Variables
-    ctrl_cmd.mode = Ctrl_Mode.CLEARFAULT;
+    ctrl_cmd.mode = CLEARFAULT;
     ctrl_cmd.heartbeat = 0;
     ctrl_cmd.steer_pos = 0.0;
     ctrl_cmd.drive_vel = 0.0;
 
     // CTRL calc variabls
-    float cmd_steer_max = 1.5
+    float cmd_steer_max = 1.5;
 
     print("Starting Perception System...\n");
+
+    // Acquire Shared Memory and Semaphore
+    if(comm_init() != 0)
+    {
+        return(0);
+    }
+
+    // Clear Fault since ctrl runs first
+    comm_prcp_transaction(&ctrl_cmd, &ctrl_telem);
 
     Camera zed;
 
@@ -88,12 +97,24 @@ int main(int argc, char **argv)
         return 1;
     }
 
-    auto camera_infos = zed.getCameraInformation();
+    // Set runtime parameters after opening the camera
+    RuntimeParameters runtime_parameters;
+    runtime_parameters.sensing_mode = SENSING_MODE::FILL;
 
-    // Create an RGBA sl::Mat object
-    sl::Mat image_zed(zed.getResolution(), MAT_TYPE::U8_C4);
+    // Prepare new image size to retrieve half-resolution images
+    Resolution image_size = zed.getCameraInformation().camera_resolution;
+    int new_width = image_size.width / 2;
+    int new_height = image_size.height / 2;
+
+    Resolution new_image_size(new_width, new_height);
+
+    // To share data between sl::Mat and cv::Mat, use slMat2cvMat()    // Only the headers and pointer to the sl::Mat are copied, not the data itself
+    Mat image_zed(new_width, new_height, MAT_TYPE::U8_C4);
     // Create an OpenCV Mat that shares sl::Mat data
     cv::Mat image_ocv = slMat2cvMat(image_zed);
+
+    Mat depth_image_zed(new_width, new_height, MAT_TYPE::U8_C4);
+    cv::Mat depth_image_ocv = slMat2cvMat(depth_image_zed);
 
     print("Starting Main Loop...\n");
 
@@ -101,23 +122,36 @@ int main(int argc, char **argv)
     while (prcp_run)
     {
         // Process Vision Data
-        if (zed.grab() == ERROR_CODE::SUCCESS) 
+        if (zed.grab() == ERROR_CODE::SUCCESS)
         {
             // Retrieve the left image in sl::Mat
             // The cv::Mat is automatically updated
-            zed.retrieveImage(image_zed, VIEW::LEFT);
+            zed.retrieveImage(image_zed, VIEW::LEFT, MEM::CPU, new_image_size);
+            zed.retrieveImage(depth_image_zed, VIEW::DEPTH, MEM::CPU, new_image_size);
+
             // Display the left image from the cv::Mat object
             cv::imshow("Image", image_ocv);
-            waitKey(1);
-        } 
-        else 
+            cv::imshow("Depth", depth_image_ocv);
+
+            cv::waitKey(10);
+        }
+        else
         {
             sleep_ms(1);
+            print("Failed to grab frame!\n");
         }
 
         // Send/Receive the latest telemetry/command data from shared memory to local memory
-        comm_transaction(&ctrl_cmd, &ctrl_telem);
+        comm_prcp_transaction(&ctrl_cmd, &ctrl_telem);
+
+        // Update ctrl_cmd struct
+        ctrl_cmd.mode = RUN;
+        ctrl_cmd.heartbeat++;
+        cout << "HB = " << ctrl_cmd.heartbeat << endl;
     }
+
+    print("Shuting down prcp...\n");
+
     // close the ZED
     zed.close();
 
@@ -165,6 +199,31 @@ void parseArgs(int argc, char **argv,sl::InitParameters& param)
     } else {
         // Default
     }
+}
+
+/**************************************************************************/
+/*!
+    @brief  Conversion function between sl::Mat and cv::Mat
+*/
+/**************************************************************************/
+cv::Mat slMat2cvMat(sl::Mat& input) {
+    // Mapping between MAT_TYPE and CV_TYPE
+    int cv_type = -1;
+    switch (input.getDataType()) {
+        case MAT_TYPE::F32_C1: cv_type = CV_32FC1; break;
+        case MAT_TYPE::F32_C2: cv_type = CV_32FC2; break;
+        case MAT_TYPE::F32_C3: cv_type = CV_32FC3; break;
+        case MAT_TYPE::F32_C4: cv_type = CV_32FC4; break;
+        case MAT_TYPE::U8_C1: cv_type = CV_8UC1; break;
+        case MAT_TYPE::U8_C2: cv_type = CV_8UC2; break;
+        case MAT_TYPE::U8_C3: cv_type = CV_8UC3; break;
+        case MAT_TYPE::U8_C4: cv_type = CV_8UC4; break;
+        default: break;
+    }
+
+    // Since cv::Mat data requires a uchar* pointer, we get the uchar1 pointer from sl::Mat (getPtr<T>())
+    // cv::Mat and sl::Mat will share a single memory structure
+    return cv::Mat(input.getHeight(), input.getWidth(), cv_type, input.getPtr<sl::uchar1>(MEM::CPU));
 }
 
 /**************************************************************************/

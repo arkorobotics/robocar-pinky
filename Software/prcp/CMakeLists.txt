@@ -1,4 +1,4 @@
-SET(execName ZED_Depth_Sensing)
+SET(execName prcp)
 CMAKE_MINIMUM_REQUIRED(VERSION 2.4)
 PROJECT(${execName})
 
@@ -15,8 +15,9 @@ endif(COMMAND cmake_policy)
 
 SET(EXECUTABLE_OUTPUT_PATH ".")
 SET(SPECIAL_OS_LIBS "")
- 
+
 find_package(ZED 3 REQUIRED)
+find_package(OpenCV REQUIRED)
 find_package(GLUT REQUIRED)
 find_package(GLEW REQUIRED)
 find_package(OpenGL REQUIRED)
@@ -29,12 +30,14 @@ ENDIF()
 find_package(CUDA ${ZED_CUDA_VERSION} EXACT REQUIRED)
 
 include_directories(${ZED_INCLUDE_DIRS})
+include_directories(${OpenCV_INCLUDE_DIRS})
 include_directories(${GLEW_INCLUDE_DIRS})
 include_directories(${GLUT_INCLUDE_PATH})
 include_directories(${CUDA_INCLUDE_DIRS})
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
 
 link_directories(${ZED_LIBRARY_DIR})
+link_directories(${OpenCV_LIBRARY_DIRS})
 link_directories(${GLEW_LIBRARY_DIRS})
 link_directories(${GLUT_LIBRARY_DIRS})
 link_directories(${OpenGL_LIBRARY_DIRS})
@@ -53,9 +56,10 @@ else()
     SET(ZED_LIBS ${ZED_STATIC_LIBRARIES} ${CUDA_CUDA_LIBRARY} ${CUDA_LIBRARY})
 endif()
 
-TARGET_LINK_LIBRARIES(${execName} 
-                        ${SPECIAL_OS_LIBS} 
-                        ${ZED_LIBS} 
+TARGET_LINK_LIBRARIES(${execName}
+                        ${SPECIAL_OS_LIBS}
+                        ${ZED_LIBS}
+                        ${OpenCV_LIBRARIES}
                         ${OPENGL_LIBRARIES}
                         ${GLUT_LIBRARY}
                         ${GLEW_LIBRARIES})

@@ -20,11 +20,7 @@
 #include <inttypes.h>
 #include <errno.h>
 
-#include "comm.h"
-
-extern "C" {
-  #include "glue.h"
-}
+#include "comm.hpp"
 
 // Shared Ctrl Variables
 Ctrl_Cmd *shared_ctrl_cmd;		// CMD shared memory
@@ -53,41 +49,41 @@ int comm_init(void)
     if ((cmd_sem_id = semget(cmd_sem_key, 1, IPC_CREAT | 0666)) < 0)
     {
 	printf("Error getting cmd semaphore id");
-    	return(0);
+    	return(-1);
     }
     if (semctl(cmd_sem_id, 0, SETVAL, 1) < 0) { printf("CMD SEM UNLOCK FAILED\n"); } // UNLOCK CMD SEM
 
     if ((cmd_shmid = shmget(cmd_key, sizeof(Ctrl_Cmd), IPC_CREAT | 0666)) < 0)
     {
         printf("Error getting shared memory id");
-        return(0);
+        return(-1);
     }
     if ((shared_ctrl_cmd = (Ctrl_Cmd *)shmat(cmd_shmid, NULL, 0)) == (Ctrl_Cmd *) -1)
     {
         printf("Error attaching shared memory id");
-        return(0);
+        return(-1);
     }
 
     // Setup TELEM semaphore and shared memory
     if ((telem_sem_id = semget(telem_sem_key, 1, IPC_CREAT | 0666)) < 0)
     {
         printf("Error getting telem semaphore id");
-        return(0);
+        return(-1);
     }
     if (semctl(telem_sem_id, 0, SETVAL, 1) < 0) { printf("TELEM SEM UNLOCK FAILED\n"); } // UNLOCK TELEM SEM
 
     if ((telem_shmid = shmget(telem_key, sizeof(Ctrl_Telem), IPC_CREAT | 0666)) < 0)
     {
         printf("Error getting shared memory id");
-        return(0);
+        return(-1);
     }
     if ((shared_ctrl_telem = (Ctrl_Telem *)shmat(telem_shmid, NULL, 0)) == (Ctrl_Telem *) -1)
     {
         printf("Error attaching shared memory id");
-        return(0);
+        return(-1);
     }
 
-    return 1;
+    return 0;
 }
 
 /**************************************************************************/
@@ -113,13 +109,13 @@ void comm_close(void)
     @return None
 */
 /**************************************************************************/
-void comm_transaction(Ctrl_Cmd *ctrl_cmd, Ctrl_Telem *ctrl_telem)
+void comm_prcp_transaction(Ctrl_Cmd *ctrl_cmd, Ctrl_Telem *ctrl_telem)
 {
     sem_acquire(telem_sem_id);
     sem_acquire(cmd_sem_id);
 
-    memcpy(shared_ctrl_telem, ctrl_telem, sizeof(struct Ctrl_Telem));
-    memcpy(ctrl_cmd, shared_ctrl_cmd, sizeof(struct Ctrl_Cmd));
+    memcpy(ctrl_telem, shared_ctrl_telem, sizeof(struct Ctrl_Telem));
+    memcpy(shared_ctrl_cmd, ctrl_cmd, sizeof(struct Ctrl_Cmd));
 
     sem_release(telem_sem_id);
     sem_release(cmd_sem_id);
