@@ -476,7 +476,6 @@ int ctrl_loop(void)
 /**************************************************************************/
 /*!
     @brief  Signal interrupt to kill real-time control thread
-    @return Error code
 */
 /**************************************************************************/
 void sigint(int) 

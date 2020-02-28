@@ -8,12 +8,7 @@ import sysv_ipc
 import math
 import cv2
 import numpy as np
-#import matplotlib
-#import matplotlib.mlab as mlab
-#import matplotlib.pyplot as plt
 import pyzed.sl as sl
-
-#matplotlib.use('qt4agg')
 
 np.set_printoptions(threshold=sys.maxsize)
 
