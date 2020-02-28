@@ -1,3 +1,0 @@
-/home/robocar/robocar-pinky/Software/prcp/build/CMakeFiles/rebuild_cache.dir
-/home/robocar/robocar-pinky/Software/prcp/build/CMakeFiles/prcp.dir
-/home/robocar/robocar-pinky/Software/prcp/build/CMakeFiles/edit_cache.dir
