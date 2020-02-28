@@ -40,15 +40,18 @@ using namespace sl;
 // Local Variables
 bool volatile prcp_run = true;                  // Preception loop run state
 
-const uint32_t img_height = 376;
-const uint32_t img_width = 672;
+const uint32_t img_height = 376 / 2;
+const uint32_t img_width = 672 / 2;
 
 const uint32_t window_left = 0;
-const uint32_t window_right = 672;
+const uint32_t window_right = 672 / 2;
 const uint32_t window_center = (window_right - window_left)/2;
 
-const uint32_t window_top = 220;
-const uint32_t window_bottom = 320;
+const uint32_t window_top = 220 / 2;
+const uint32_t window_bottom = 320 / 2;
+
+const int low_H = 20, low_S = 70, low_V = 70;
+const int high_H = 46, high_S = 255, high_V = 255;
 
 // Local Communication Variables
 Ctrl_Cmd ctrl_cmd;                              // Command data from C&DH
@@ -56,11 +59,17 @@ Ctrl_Telem ctrl_telem;                          // Telemetry data to C&DH
 
 int main(int argc, char **argv)
 {
+    // Make sure ctrl-C stops the program under controlled circumstances
+    signal(SIGINT, &sigint);
+
     // CTRL Command Variables
     ctrl_cmd.mode = CLEARFAULT;
     ctrl_cmd.heartbeat = 0;
     ctrl_cmd.steer_pos = 0.0;
     ctrl_cmd.drive_vel = 0.0;
+
+    // PRCP Telem Variables
+    ctrl_telem.mode = FAULT;
 
     // CTRL calc variabls
     float cmd_steer_max = 1.5;
@@ -112,6 +121,9 @@ int main(int argc, char **argv)
     Mat image_zed(new_width, new_height, MAT_TYPE::U8_C4);
     // Create an OpenCV Mat that shares sl::Mat data
     cv::Mat image_ocv = slMat2cvMat(image_zed);
+    // Create HSV image
+    cv::Mat image_hsv = image_ocv;
+    cv::Mat image_mask = image_ocv;
 
     Mat depth_image_zed(new_width, new_height, MAT_TYPE::U8_C4);
     cv::Mat depth_image_ocv = slMat2cvMat(depth_image_zed);
@@ -121,6 +133,15 @@ int main(int argc, char **argv)
     // Main Loop
     while (prcp_run)
     {
+        if(ctrl_telem.mode == FAULT)
+        {
+            ctrl_cmd.mode = CLEARFAULT;
+        }
+        else
+        {
+            ctrl_cmd.mode = RUN;
+        }
+
         // Process Vision Data
         if (zed.grab() == ERROR_CODE::SUCCESS)
         {
@@ -129,9 +150,17 @@ int main(int argc, char **argv)
             zed.retrieveImage(image_zed, VIEW::LEFT, MEM::CPU, new_image_size);
             zed.retrieveImage(depth_image_zed, VIEW::DEPTH, MEM::CPU, new_image_size);
 
+            // Lane following
+            // --------------
+            // Convert image to hsv
+            cv::cvtColor(image_ocv, image_hsv, cv::COLOR_BGR2HSV);
+            // Detect the object based on HSV Range Values
+            inRange(image_hsv, cv::Scalar(low_H, low_S, low_V), cv::Scalar(high_H, high_S, high_V), image_mask);
+
             // Display the left image from the cv::Mat object
             cv::imshow("Image", image_ocv);
             cv::imshow("Depth", depth_image_ocv);
+            cv::imshow("Prcp", image_mask);
 
             cv::waitKey(10);
         }
@@ -147,10 +176,14 @@ int main(int argc, char **argv)
         // Update ctrl_cmd struct
         ctrl_cmd.mode = RUN;
         ctrl_cmd.heartbeat++;
+        ctrl_cmd.drive_vel = 0.05;
         cout << "HB = " << ctrl_cmd.heartbeat << endl;
     }
 
     print("Shuting down prcp...\n");
+
+    // Close OpenCV windows
+    cv::destroyAllWindows();
 
     // close the ZED
     zed.close();
