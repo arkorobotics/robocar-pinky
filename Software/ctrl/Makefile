@@ -7,8 +7,8 @@ ccsrc = $(wildcard src/*.cpp)
 obj = $(csrc:.c=.o) $(ccsrc:.cpp=.o)
 
 ARFLAGS = rcv
-CFLAGS = -Wall -g -fPIC -Isrc
-CXXFLAGS = -Wall -g -fPIC -pthread -Isrc
+CFLAGS = -Wall -O3 -g -fPIC -Isrc
+CXXFLAGS = -Wall -O3 -g -fPIC -pthread -Isrc
 LDFLAGS = -L -li2c -Wl,-R -Wl,.
 
 TARGETS = ctrl

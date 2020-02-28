@@ -57,22 +57,24 @@ int main(int argc, char **argv) {
     auto camera_infos = zed.getCameraInformation();
 
     // Point cloud viewer
-    //GLViewer viewer;
+    GLViewer viewer;
     // Initialize point cloud viewer 
-    //GLenum errgl = viewer.init(argc, argv, camera_infos.calibration_parameters.left_cam);
-    //if (errgl!=GLEW_OK)
-    //    print("Error OpenGL: "+std::string((char*)glewGetErrorString(errgl)));
+    GLenum errgl = viewer.init(argc, argv, camera_infos.calibration_parameters.left_cam);
+    if (errgl!=GLEW_OK)
+        print("Error OpenGL: "+std::string((char*)glewGetErrorString(errgl)));
 
 
     // Allocation of 4 channels of float on GPU
     Mat point_cloud(camera_infos.camera_resolution, MAT_TYPE::F32_C4, MEM::GPU);
 
     print("HEY!");
-
+    int count = 0;
     // Main Loop
     while (1) {
         if (zed.grab() == ERROR_CODE::SUCCESS) {
             zed.retrieveMeasure(point_cloud, MEASURE::XYZRGBA, MEM::GPU);
+            cout << count << endl;
+            count = count + 1;
            // viewer.updatePointCloud(point_cloud);
         } else sleep_ms(1);
     }
