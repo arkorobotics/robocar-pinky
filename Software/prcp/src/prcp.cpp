@@ -152,10 +152,26 @@ int main(int argc, char **argv)
 
             // Lane following
             // --------------
+
             // Convert image to hsv
             cv::cvtColor(image_ocv, image_hsv, cv::COLOR_BGR2HSV);
+
             // Detect the object based on HSV Range Values
             inRange(image_hsv, cv::Scalar(low_H, low_S, low_V), cv::Scalar(high_H, high_S, high_V), image_mask);
+
+            cout << "HSV SIZE = " << image_hsv.elemSize() << " MASK SIZE = " << image_mask.elemSize() << endl;
+            cout << "HSV TOTAL SIZE = " << image_hsv.total() << " MASK TOTAL SIZE = " << image_mask.total() << endl;
+
+            for (int col = window_left; col < window_right; col++)
+            {
+                for (int row = window_top; row < window_bottom; row++)
+                {
+                    int pixelValue = (int)image_mask.at<uchar>(row,col);
+                    // For color
+                    // Vec3b color = image_ocv.at<Vec3b>(Point(row,col));
+                }
+            }
+            // --------------
 
             // Display the left image from the cv::Mat object
             cv::imshow("Image", image_ocv);
