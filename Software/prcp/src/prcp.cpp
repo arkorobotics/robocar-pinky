@@ -45,7 +45,8 @@ const uint32_t img_width = 672 / 2;
 
 const uint32_t window_left = 0;
 const uint32_t window_right = 672 / 2;
-const uint32_t window_center = (window_right - window_left)/2;
+const uint32_t window_width = window_right - window_left;
+const uint32_t window_center = (window_width)/2;
 
 const uint32_t window_top = 220 / 2;
 const uint32_t window_bottom = 320 / 2;
@@ -57,10 +58,19 @@ const int high_H = 46, high_S = 255, high_V = 255;
 Ctrl_Cmd ctrl_cmd;                              // Command data from C&DH
 Ctrl_Telem ctrl_telem;                          // Telemetry data to C&DH
 
+uint32_t window_index_array[window_width];
+uint32_t window_histo_array[window_width];
+
 int main(int argc, char **argv)
 {
     // Make sure ctrl-C stops the program under controlled circumstances
     signal(SIGINT, &sigint);
+
+    // Initalize window index array
+    for(int i = 0; i < window_width; i++)
+    {
+        window_index_array[i] = i;
+    }
 
     // CTRL Command Variables
     ctrl_cmd.mode = CLEARFAULT;
@@ -162,16 +172,21 @@ int main(int argc, char **argv)
             cout << "HSV SIZE = " << image_hsv.elemSize() << " MASK SIZE = " << image_mask.elemSize() << endl;
             cout << "HSV TOTAL SIZE = " << image_hsv.total() << " MASK TOTAL SIZE = " << image_mask.total() << endl;
 
-            for (int col = window_left; col < window_right; col++)
+            for (uint32_t col = window_left; col < window_right; col++)
             {
-                for (int row = window_top; row < window_bottom; row++)
+                for (uint32_t row = window_top; row < window_bottom; row++)
                 {
-                    int pixelValue = (int)image_mask.at<uchar>(row,col);
+                    window_histo_array[col] += (uint32_t)image_mask.at<uchar>(row,col);
                     // For color
                     // Vec3b color = image_ocv.at<Vec3b>(Point(row,col));
                 }
             }
+
             // --------------
+
+            // Compute the weighted mean
+            uint32_t mean = (uint32_t)weightedMean(window_index_array, window_histo_array, window_width);
+            cout << "Mean = " << mean;
 
             // Display the left image from the cv::Mat object
             cv::imshow("Image", image_ocv);
@@ -192,8 +207,9 @@ int main(int argc, char **argv)
         // Update ctrl_cmd struct
         ctrl_cmd.mode = RUN;
         ctrl_cmd.heartbeat++;
+        ctrl_cmd.steer_pos = -1.0*cmd_steer_max*(mean - window_center)/((window_right - window_left)/2);
         ctrl_cmd.drive_vel = 0.05;
-        cout << "HB = " << ctrl_cmd.heartbeat << endl;
+        cout << ", steer_pos = " << ctrl_cmd.steer_pos << endl;
     }
 
     print("Shuting down prcp...\n");
@@ -274,6 +290,24 @@ cv::Mat slMat2cvMat(sl::Mat& input) {
     // cv::Mat and sl::Mat will share a single memory structure
     return cv::Mat(input.getHeight(), input.getWidth(), cv_type, input.getPtr<sl::uchar1>(MEM::CPU));
 }
+
+/**************************************************************************/
+/*!
+    @brief  Function to calculate weighted mean
+*/
+/**************************************************************************/
+float weightedMean(uint32_t X[], uint32_t W[], uint32_t n) 
+{ 
+    uint32_t sum = 0, numWeight = 0; 
+
+    for (uint32_t i = 0; i < n; i++) 
+    { 
+        numWeight = numWeight + X[i] * W[i]; 
+        sum = sum + W[i]; 
+    } 
+  
+    return (float)numWeight / sum; 
+} 
 
 /**************************************************************************/
 /*!
