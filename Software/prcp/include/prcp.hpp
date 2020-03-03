@@ -3,7 +3,7 @@
 
 void parseArgs(int argc, char **argv,sl::InitParameters& param);
 cv::Mat slMat2cvMat(sl::Mat& input);
-float weightedMean(int X[], int W[], int n);
+float weightedMean(uint32_t *X, uint32_t *W, uint32_t n);
 void sigint(int);
 
-#endif // __CTRL_H__
+#endif // __PRCP_H__

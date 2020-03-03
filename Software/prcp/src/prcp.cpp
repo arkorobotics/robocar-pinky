@@ -131,12 +131,15 @@ int main(int argc, char **argv)
     Mat image_zed(new_width, new_height, MAT_TYPE::U8_C4);
     // Create an OpenCV Mat that shares sl::Mat data
     cv::Mat image_ocv = slMat2cvMat(image_zed);
+    cv::Mat image_mask = cv::Mat::zeros(new_width, new_height, CV_8U);
+    cv::Mat image_res = cv::Mat::zeros(new_width, new_height, CV_8UC3);
     // Create HSV image
-    cv::Mat image_hsv = image_ocv;
-    cv::Mat image_mask = image_ocv;
+    cv::Mat image_hsv = cv::Mat::zeros(new_width, new_height, CV_8UC3);
 
     Mat depth_image_zed(new_width, new_height, MAT_TYPE::U8_C4);
     cv::Mat depth_image_ocv = slMat2cvMat(depth_image_zed);
+
+    int32_t mean = 0;
 
     print("Starting Main Loop...\n");
 
@@ -162,6 +165,7 @@ int main(int argc, char **argv)
 
             // Lane following
             // --------------
+            image_res = cv::Mat::zeros(new_width, new_height, CV_8UC3);
 
             // Convert image to hsv
             cv::cvtColor(image_ocv, image_hsv, cv::COLOR_BGR2HSV);
@@ -169,29 +173,30 @@ int main(int argc, char **argv)
             // Detect the object based on HSV Range Values
             inRange(image_hsv, cv::Scalar(low_H, low_S, low_V), cv::Scalar(high_H, high_S, high_V), image_mask);
 
-            cout << "HSV SIZE = " << image_hsv.elemSize() << " MASK SIZE = " << image_mask.elemSize() << endl;
-            cout << "HSV TOTAL SIZE = " << image_hsv.total() << " MASK TOTAL SIZE = " << image_mask.total() << endl;
-
             for (uint32_t col = window_left; col < window_right; col++)
             {
+                window_histo_array [col] = 0;
+
                 for (uint32_t row = window_top; row < window_bottom; row++)
                 {
                     window_histo_array[col] += (uint32_t)image_mask.at<uchar>(row,col);
-                    // For color
-                    // Vec3b color = image_ocv.at<Vec3b>(Point(row,col));
                 }
             }
 
-            // --------------
-
             // Compute the weighted mean
-            uint32_t mean = (uint32_t)weightedMean(window_index_array, window_histo_array, window_width);
+            mean = (int32_t)weightedMean(window_index_array, window_histo_array, window_width);
             cout << "Mean = " << mean;
 
+            // Bitwise-AND mask and original image
+            cv::bitwise_and(image_ocv, image_ocv, image_res, image_mask);
+            cv::line(image_res,cv::Point(mean,window_top),cv::Point(mean,window_bottom),cv::Scalar(0,0,255),5);
+            // --------------
+
             // Display the left image from the cv::Mat object
-            cv::imshow("Image", image_ocv);
-            cv::imshow("Depth", depth_image_ocv);
-            cv::imshow("Prcp", image_mask);
+//            cv::imshow("Image", image_ocv);
+            cv::imshow("Res", image_res);
+//            cv::imshow("Depth", depth_image_ocv);
+//            cv::imshow("Prcp", image_mask);
 
             cv::waitKey(10);
         }
@@ -205,9 +210,8 @@ int main(int argc, char **argv)
         comm_prcp_transaction(&ctrl_cmd, &ctrl_telem);
 
         // Update ctrl_cmd struct
-        ctrl_cmd.mode = RUN;
         ctrl_cmd.heartbeat++;
-        ctrl_cmd.steer_pos = -1.0*cmd_steer_max*(mean - window_center)/((window_right - window_left)/2);
+        ctrl_cmd.steer_pos = -1.0*cmd_steer_max*(mean - (float)window_center)/(((float)window_right - (float)window_left)/2);
         ctrl_cmd.drive_vel = 0.05;
         cout << ", steer_pos = " << ctrl_cmd.steer_pos << endl;
     }
@@ -296,25 +300,25 @@ cv::Mat slMat2cvMat(sl::Mat& input) {
     @brief  Function to calculate weighted mean
 */
 /**************************************************************************/
-float weightedMean(uint32_t X[], uint32_t W[], uint32_t n) 
-{ 
-    uint32_t sum = 0, numWeight = 0; 
+float weightedMean(uint32_t *X, uint32_t *W, uint32_t n)
+{
+    uint32_t sum = 0, numWeight = 0;
 
-    for (uint32_t i = 0; i < n; i++) 
-    { 
-        numWeight = numWeight + X[i] * W[i]; 
-        sum = sum + W[i]; 
-    } 
-  
-    return (float)numWeight / sum; 
-} 
+    for (uint32_t i = 0; i < n; i++)
+    {
+        numWeight = numWeight + X[i] * W[i];
+        sum = sum + W[i];
+    }
+
+    return (float)numWeight / sum;
+}
 
 /**************************************************************************/
 /*!
     @brief  Signal interrupt to kill real-time control thread
 */
 /**************************************************************************/
-void sigint(int) 
+void sigint(int)
 {
     prcp_run = false;
 }
