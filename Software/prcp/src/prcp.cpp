@@ -50,9 +50,10 @@ const uint32_t window_center = (window_width)/2;
 
 const uint32_t window_top = 220 / 2;
 const uint32_t window_bottom = 320 / 2;
+const uint32_t window_height = window_bottom - window_top;
 
-const int low_H = 20, low_S = 70, low_V = 70;
-const int high_H = 46, high_S = 255, high_V = 255;
+const int low_H = 20, low_S = 120, low_V = 120;
+const int high_H = 35, high_S = 255, high_V = 255;
 
 // Local Communication Variables
 Ctrl_Cmd ctrl_cmd;                              // Command data from C&DH
@@ -60,6 +61,10 @@ Ctrl_Telem ctrl_telem;                          // Telemetry data to C&DH
 
 uint32_t window_index_array[window_width];
 uint32_t window_histo_array[window_width];
+
+const uint32_t line_n = 6;
+uint32_t line_x[line_n];
+uint32_t line_y[line_n];
 
 int main(int argc, char **argv)
 {
@@ -82,7 +87,7 @@ int main(int argc, char **argv)
     ctrl_telem.mode = FAULT;
 
     // CTRL calc variabls
-    float cmd_steer_max = 1.5;
+    float cmd_steer_max = 0.5;
 
     print("Starting Perception System...\n");
 
@@ -129,10 +134,12 @@ int main(int argc, char **argv)
 
     // To share data between sl::Mat and cv::Mat, use slMat2cvMat()    // Only the headers and pointer to the sl::Mat are copied, not the data itself
     Mat image_zed(new_width, new_height, MAT_TYPE::U8_C4);
+
     // Create an OpenCV Mat that shares sl::Mat data
     cv::Mat image_ocv = slMat2cvMat(image_zed);
     cv::Mat image_mask = cv::Mat::zeros(new_width, new_height, CV_8U);
     cv::Mat image_res = cv::Mat::zeros(new_width, new_height, CV_8UC3);
+
     // Create HSV image
     cv::Mat image_hsv = cv::Mat::zeros(new_width, new_height, CV_8UC3);
 
@@ -173,32 +180,50 @@ int main(int argc, char **argv)
             // Detect the object based on HSV Range Values
             inRange(image_hsv, cv::Scalar(low_H, low_S, low_V), cv::Scalar(high_H, high_S, high_V), image_mask);
 
-            for (uint32_t col = window_left; col < window_right; col++)
-            {
-                window_histo_array [col] = 0;
+            // Bitwise-AND mask and original image
+            cv::bitwise_and(image_ocv, image_ocv, image_res, image_mask);
 
-                for (uint32_t row = window_top; row < window_bottom; row++)
+            for (uint32_t line_i = 0; line_i < line_n; line_i++)
+            {
+                line_y[line_i] = (window_height/line_n)*line_i + window_top;
+                line_y[0] = window_top;
+
+                for (uint32_t col = window_left; col < window_right; col++)
                 {
-                    window_histo_array[col] += (uint32_t)image_mask.at<uchar>(row,col);
+                    window_histo_array[col] = 0;
+
+                    for (uint32_t row = line_y[line_i]; row < line_y[line_i]+(window_height/line_n); row++)
+                    {
+                        window_histo_array[col] += (uint32_t)image_mask.at<uchar>(row,col);
+                    }
+                }
+
+                // Compute the weighted mean
+                line_x[line_i] = (int32_t)weightedMean(window_index_array, window_histo_array, window_width);
+
+                if(line_x[line_i] == 0)
+                {
+                    line_x[line_i] = window_center;
                 }
             }
 
-            // Compute the weighted mean
-            mean = (int32_t)weightedMean(window_index_array, window_histo_array, window_width);
-            cout << "Mean = " << mean;
+            for (uint32_t line_k = 0; line_k < line_n-1; line_k++)
+            {
+                cv::line(image_res,cv::Point(line_x[line_k],line_y[line_k]),cv::Point(line_x[line_k+1],line_y[line_k+1]),cv::Scalar(0,0,255),5);
+            }
 
-            // Bitwise-AND mask and original image
-            cv::bitwise_and(image_ocv, image_ocv, image_res, image_mask);
-            cv::line(image_res,cv::Point(mean,window_top),cv::Point(mean,window_bottom),cv::Scalar(0,0,255),5);
+            double alpha = 0.5; double beta;
+            beta = ( 1.0 - alpha );
+            cv::addWeighted(image_res, alpha, depth_image_ocv, beta, 0.0, image_res);
             // --------------
 
             // Display the left image from the cv::Mat object
 //            cv::imshow("Image", image_ocv);
-            cv::imshow("Res", image_res);
+// Sending images over x forward is slow!!!! help!            cv::imshow("Res", image_res);
 //            cv::imshow("Depth", depth_image_ocv);
 //            cv::imshow("Prcp", image_mask);
 
-            cv::waitKey(10);
+            cv::waitKey(1);
         }
         else
         {
@@ -211,9 +236,9 @@ int main(int argc, char **argv)
 
         // Update ctrl_cmd struct
         ctrl_cmd.heartbeat++;
-        ctrl_cmd.steer_pos = -1.0*cmd_steer_max*(mean - (float)window_center)/(((float)window_right - (float)window_left)/2);
-        ctrl_cmd.drive_vel = 0.05;
-        cout << ", steer_pos = " << ctrl_cmd.steer_pos << endl;
+        ctrl_cmd.steer_pos = -1.0*cmd_steer_max*(line_x[(line_n/2)-1] - (float)window_center)/(((float)window_right - (float)window_left)/2);
+        ctrl_cmd.drive_vel = 0.07;
+        cout << "line mid = " << line_x[(line_n/2)-1] << ", steer_pos = " << ctrl_cmd.steer_pos << endl;
     }
 
     print("Shuting down prcp...\n");
