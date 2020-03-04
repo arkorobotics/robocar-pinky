@@ -48,11 +48,11 @@ const uint32_t window_right = 672 / 2;
 const uint32_t window_width = window_right - window_left;
 const uint32_t window_center = (window_width)/2;
 
-const uint32_t window_top = 220 / 2;
-const uint32_t window_bottom = 320 / 2;
+const uint32_t window_top = 276 / 2;
+const uint32_t window_bottom = 370 / 2;
 const uint32_t window_height = window_bottom - window_top;
 
-const int low_H = 20, low_S = 120, low_V = 120;
+const int low_H = 20, low_S = 110, low_V = 110;
 const int high_H = 35, high_S = 255, high_V = 255;
 
 // Local Communication Variables
@@ -62,9 +62,14 @@ Ctrl_Telem ctrl_telem;                          // Telemetry data to C&DH
 uint32_t window_index_array[window_width];
 uint32_t window_histo_array[window_width];
 
-const uint32_t line_n = 6;
+const uint32_t line_n = 3;
 uint32_t line_x[line_n];
 uint32_t line_y[line_n];
+
+float drive_actual_vel = 0.0;
+float drive_actual_max_vel = 0.005;
+
+int32_t line_drive_index = line_n;
 
 int main(int argc, char **argv)
 {
@@ -87,7 +92,7 @@ int main(int argc, char **argv)
     ctrl_telem.mode = FAULT;
 
     // CTRL calc variabls
-    float cmd_steer_max = 0.5;
+    float cmd_steer_max = 1.5;
 
     print("Starting Perception System...\n");
 
@@ -124,6 +129,21 @@ int main(int argc, char **argv)
     // Set runtime parameters after opening the camera
     RuntimeParameters runtime_parameters;
     runtime_parameters.sensing_mode = SENSING_MODE::FILL;
+
+    // Set parameters for Positional Tracking
+    PositionalTrackingParameters positional_tracking_param;
+    positional_tracking_param.enable_area_memory = true;
+
+    // enable Positional Tracking
+    zed_error = zed.enablePositionalTracking(positional_tracking_param);
+    if (zed_error != ERROR_CODE::SUCCESS) {
+        print("Enabling positionnal tracking failed: ", zed_error);
+        zed.close();
+        return 1; // Quit if an error occurred
+    }
+
+    Pose zed_pose;
+    POSITIONAL_TRACKING_STATE tracking_state;
 
     // Prepare new image size to retrieve half-resolution images
     Resolution image_size = zed.getCameraInformation().camera_resolution;
@@ -165,6 +185,16 @@ int main(int argc, char **argv)
         // Process Vision Data
         if (zed.grab() == ERROR_CODE::SUCCESS)
         {
+            // One day we will get the pose of the camera relative to the world frame
+            // The function call below works, but we aren't quite ready for world frame
+            // tracking_state = zed.getPosition(zed_pose, REFERENCE_FRAME::WORLD);
+            tracking_state = zed.getPosition(zed_pose, REFERENCE_FRAME::CAMERA);
+
+            // Display translation and timestamp
+            // cout << "tx = " << zed_pose.getTranslation().tx;
+            // cout << ", ty = " << zed_pose.getTranslation().ty;
+            // cout << ", tz = " << zed_pose.getTranslation().tz;
+
             // Retrieve the left image in sl::Mat
             // The cv::Mat is automatically updated
             zed.retrieveImage(image_zed, VIEW::LEFT, MEM::CPU, new_image_size);
@@ -207,19 +237,41 @@ int main(int argc, char **argv)
                 }
             }
 
-            for (uint32_t line_k = 0; line_k < line_n-1; line_k++)
+            drive_actual_vel = -1.0*zed_pose.getTranslation().tz;
+
+            line_drive_index = (int32_t)line_n - (int32_t)((float)line_n*(drive_actual_vel/drive_actual_max_vel));
+
+            if(line_drive_index >= (int32_t)line_n)
             {
-                cv::line(image_res,cv::Point(line_x[line_k],line_y[line_k]),cv::Point(line_x[line_k+1],line_y[line_k+1]),cv::Scalar(0,0,255),5);
+                line_drive_index = (int32_t)line_n-1;
+            }
+            if(line_drive_index < 0)
+            {
+                line_drive_index = 0;
             }
 
-            double alpha = 0.5; double beta;
+            for (uint32_t line_k = 0; line_k < line_n-1; line_k++)
+            {
+                if(line_k == line_drive_index)
+                {
+                    cv::line(image_res,cv::Point(line_x[line_k],line_y[line_k]),cv::Point(line_x[line_k+1],line_y[line_k+1]),cv::Scalar(0,255,0),5);
+                }
+                else
+                {
+                    cv::line(image_res,cv::Point(line_x[line_k],line_y[line_k]),cv::Point(line_x[line_k+1],line_y[line_k+1]),cv::Scalar(0,0,255),5);
+                }
+            }
+
+            cv::circle(image_res,cv::Point(line_x[line_drive_index],line_y[line_drive_index]),5,cv::Scalar(0,255,0),3,8,0);
+
+            double alpha = 0.7; double beta;
             beta = ( 1.0 - alpha );
             cv::addWeighted(image_res, alpha, depth_image_ocv, beta, 0.0, image_res);
             // --------------
 
             // Display the left image from the cv::Mat object
 //            cv::imshow("Image", image_ocv);
-// Sending images over x forward is slow!!!! help!            cv::imshow("Res", image_res);
+              cv::imshow("Res", image_res);
 //            cv::imshow("Depth", depth_image_ocv);
 //            cv::imshow("Prcp", image_mask);
 
@@ -236,10 +288,18 @@ int main(int argc, char **argv)
 
         // Update ctrl_cmd struct
         ctrl_cmd.heartbeat++;
-        ctrl_cmd.steer_pos = -1.0*cmd_steer_max*(line_x[(line_n/2)-1] - (float)window_center)/(((float)window_right - (float)window_left)/2);
-        ctrl_cmd.drive_vel = 0.07;
-        cout << "line mid = " << line_x[(line_n/2)-1] << ", steer_pos = " << ctrl_cmd.steer_pos << endl;
+        ctrl_cmd.steer_pos = -1.0*cmd_steer_max*(line_x[line_drive_index] - (float)window_center)/(((float)window_right - (float)window_left)/2);
+        ctrl_cmd.drive_vel = 0.12;
+
+        cout << ", drv vel = " << drive_actual_vel << ", drv line index = " << line_drive_index;
+        cout << ", line mid = " << line_x[line_drive_index] << ", steer_pos = " << ctrl_cmd.steer_pos << endl;
     }
+
+    ctrl_cmd.mode = ESTOP;
+    ctrl_cmd.heartbeat = 0;
+    ctrl_cmd.steer_pos = 0.0;
+    ctrl_cmd.drive_vel = 0.0;
+    comm_prcp_transaction(&ctrl_cmd, &ctrl_telem);
 
     print("Shuting down prcp...\n");
 

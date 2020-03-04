@@ -11,11 +11,14 @@ See README files in '/ctrl' and '/prcp'
 
 2. Left terminal:
 ```
+$ ssh robocar@pinky -Y -C
+$ cd robocar-pinky/Software/ctrl
 $ ./run.sh
 ```
 
 3. Right terminal:
 ```
-$ python3 prcp.py
+$ ssh robocar@pinky -Y -C
+$ cd robocar-pinky/Software/prcp/build
+$ ./prcp
 ```
-
