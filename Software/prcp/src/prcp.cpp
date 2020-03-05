@@ -48,8 +48,8 @@ const uint32_t window_right = 672 / 2;
 const uint32_t window_width = window_right - window_left;
 const uint32_t window_center = (window_width)/2;
 
-const uint32_t window_top = 276 / 2;
-const uint32_t window_bottom = 370 / 2;
+const uint32_t window_top = 260 / 2;
+const uint32_t window_bottom = 350 / 2;
 const uint32_t window_height = window_bottom - window_top;
 
 const int low_H = 20, low_S = 110, low_V = 110;
@@ -65,6 +65,7 @@ uint32_t window_histo_array[window_width];
 const uint32_t line_n = 3;
 uint32_t line_x[line_n];
 uint32_t line_y[line_n];
+uint32_t line_average = 0;
 
 float drive_actual_vel = 0.0;
 float drive_actual_max_vel = 0.005;
@@ -239,6 +240,16 @@ int main(int argc, char **argv)
 
             drive_actual_vel = -1.0*zed_pose.getTranslation().tz;
 
+            line_average = (uint32_t)((line_x[0] + line_x[1] + line_x[2])/3);
+            if(line_average >= window_center)
+            {
+                line_average = (uint32_t)( (float)line_average + DRIVE_VEL_STR_GAIN*drive_actual_vel);
+            }
+            else
+            {
+                line_average = (uint32_t)( (float)line_average - DRIVE_VEL_STR_GAIN*drive_actual_vel);
+            }
+
             line_drive_index = (int32_t)line_n - (int32_t)((float)line_n*(drive_actual_vel/drive_actual_max_vel));
 
             if(line_drive_index >= (int32_t)line_n)
@@ -262,6 +273,7 @@ int main(int argc, char **argv)
                 }
             }
 
+            cv::line(image_res,cv::Point(line_average,window_top),cv::Point(line_average,window_bottom),cv::Scalar(255,0,0),5);
             cv::circle(image_res,cv::Point(line_x[line_drive_index],line_y[line_drive_index]),5,cv::Scalar(0,255,0),3,8,0);
 
             double alpha = 0.7; double beta;
@@ -288,7 +300,7 @@ int main(int argc, char **argv)
 
         // Update ctrl_cmd struct
         ctrl_cmd.heartbeat++;
-        ctrl_cmd.steer_pos = -1.0*cmd_steer_max*(line_x[line_drive_index] - (float)window_center)/(((float)window_right - (float)window_left)/2);
+        ctrl_cmd.steer_pos = -1.0*cmd_steer_max*(line_average - (float)window_center)/(((float)window_right - (float)window_left)/2);
         ctrl_cmd.drive_vel = 0.12;
 
         cout << ", drv vel = " << drive_actual_vel << ", drv line index = " << line_drive_index;
@@ -307,6 +319,7 @@ int main(int argc, char **argv)
     cv::destroyAllWindows();
 
     // close the ZED
+    zed.disablePositionalTracking();
     zed.close();
 
     return 0;

@@ -6,6 +6,8 @@
 #define DRIVE_FWD_MAX_VAL   0.300
 #define DRIVE_SCALER        (DRIVE_REV_MAX_VAL - DRIVE_FWD_MAX_VAL)/2
 
+#define DRIVE_VEL_STR_GAIN  2000.0
+
 void parseArgs(int argc, char **argv,sl::InitParameters& param);
 cv::Mat slMat2cvMat(sl::Mat& input);
 float weightedMean(uint32_t *X, uint32_t *W, uint32_t n);
