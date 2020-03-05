@@ -13,12 +13,12 @@ See README files in '/ctrl' and '/prcp'
 ```
 $ ssh robocar@pinky -Y -C
 $ cd robocar-pinky/Software/ctrl
-$ ./run.sh
+$ ./ctrl.sh
 ```
 
 3. Right terminal:
 ```
 $ ssh robocar@pinky -Y -C
-$ cd robocar-pinky/Software/prcp/build
-$ ./prcp
+$ cd robocar-pinky/Software/prcp
+$ ./prcp.sh
 ```

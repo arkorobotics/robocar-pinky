@@ -327,8 +327,8 @@ int main(int argc, char **argv)
         ctrl_cmd.drive_vel = DRIVE_VEL;
 
         // Print results
-        cout << ", drv vel = " << drive_vel_mea << ", drv line index = " << lane_drive_index;
-        cout << ", line mid = " << lane_x[lane_drive_index] << ", steer_pos = " << ctrl_cmd.steer_pos << endl;
+        cout << "drv vel = " << drive_vel_mea << ", drv lane index = " << lane_drive_index;
+        cout << ", lane average = " << lane_average << ", steer_pos = " << ctrl_cmd.steer_pos << endl;
         
         // Send/Receive the latest telemetry/command data from shared memory to local memory
         comm_prcp_transaction(&ctrl_cmd, &ctrl_telem);

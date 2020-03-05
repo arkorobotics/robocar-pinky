@@ -14,7 +14,7 @@ $ make
 
 ## Run
 ```
-$ cd robocar-pinky/Software/ctrl/build
-$ ./run.sh
+$ cd robocar-pinky/Software/ctrl
+$ ./ctrl.sh
 ```
 
