@@ -251,6 +251,8 @@ int main(int argc, char **argv)
             drive_vel_mea = -1.0*zed_pose.getTranslation().tz;
 
             // Average each row segment
+            lane_average = 0;
+
             for(uint32_t s = 0; s < LANE_N; s++)
             {
                 lane_average += (uint32_t)( (float)lane_x[s] / 3.0);
@@ -323,13 +325,13 @@ int main(int argc, char **argv)
         ctrl_cmd.heartbeat++;
 
         // Steer the robocar using the lane_average (not the lane_drive_index which doesn't work well)
-        ctrl_cmd.steer_pos = -1.0*CMD_STEER_MAX*(lane_average - WINDOW_CENTER)/((WINDOW_RIGHT - WINDOW_LEFT)/2);
+        ctrl_cmd.steer_pos = -1.0*CMD_STEER_MAX*(lane_average - (float)WINDOW_CENTER)/(((float)WINDOW_RIGHT - (float)WINDOW_LEFT)/2);
         ctrl_cmd.drive_vel = DRIVE_VEL;
 
         // Print results
         cout << "drv vel = " << drive_vel_mea << ", drv lane index = " << lane_drive_index;
         cout << ", lane average = " << lane_average << ", steer_pos = " << ctrl_cmd.steer_pos << endl;
-        
+
         // Send/Receive the latest telemetry/command data from shared memory to local memory
         comm_prcp_transaction(&ctrl_cmd, &ctrl_telem);
         // ========================================================================
