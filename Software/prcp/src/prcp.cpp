@@ -37,51 +37,38 @@
 using namespace std;
 using namespace sl;
 
-// Local Variables
-bool volatile prcp_run = true;                  // Preception loop run state
-
-const uint32_t img_height = 376 / 2;
-const uint32_t img_width = 672 / 2;
-
-const uint32_t window_left = 0;
-const uint32_t window_right = 672 / 2;
-const uint32_t window_width = window_right - window_left;
-const uint32_t window_center = (window_width)/2;
-
-const uint32_t window_top = 260 / 2;
-const uint32_t window_bottom = 350 / 2;
-const uint32_t window_height = window_bottom - window_top;
-
-const int low_H = 20, low_S = 110, low_V = 110;
-const int high_H = 35, high_S = 255, high_V = 255;
-
 // Local Communication Variables
 Ctrl_Cmd ctrl_cmd;                              // Command data from C&DH
 Ctrl_Telem ctrl_telem;                          // Telemetry data to C&DH
 
-uint32_t window_index_array[window_width];
-uint32_t window_histo_array[window_width];
+// Local Variables
+bool volatile prcp_run = true;                  // Perception loop run state
 
-const uint32_t line_n = 3;
-uint32_t line_x[line_n];
-uint32_t line_y[line_n];
-uint32_t line_average = 0;
+uint32_t window_index_array[WINDOW_WIDTH];      // Index array for weightedMean
+uint32_t window_histo_array[WINDOW_WIDTH];      // Index histogram array for weightedMean
 
-float drive_actual_vel = 0.0;
-float drive_actual_max_vel = 0.005;
+uint32_t lane_x[LANE_N];                        // Lane X-Axis Array
+uint32_t lane_y[LANE_N];                        // Lane Y-Axis Array
+uint32_t lane_average = 0;                      // Lane Average value for X-Axis scanning window height
+int32_t lane_drive_index = LANE_N;              // Index for which lane segment to follow (currently unused)
 
-int32_t line_drive_index = line_n;
+float drive_vel_mea = 0.0;                      // Measured drive velocity
 
+/**************************************************************************/
+/*!
+    @brief  Perception program main
+    @param  argc    Arguement count
+    @param  argv    Arguement variables
+    @return Error code
+*/
+/**************************************************************************/
 int main(int argc, char **argv)
 {
+    // ========================================================================
+    // Initalize perception system variables
+    // ========================================================================
     // Make sure ctrl-C stops the program under controlled circumstances
     signal(SIGINT, &sigint);
-
-    // Initalize window index array
-    for(int i = 0; i < window_width; i++)
-    {
-        window_index_array[i] = i;
-    }
 
     // CTRL Command Variables
     ctrl_cmd.mode = CLEARFAULT;
@@ -92,9 +79,16 @@ int main(int argc, char **argv)
     // PRCP Telem Variables
     ctrl_telem.mode = FAULT;
 
-    // CTRL calc variabls
-    float cmd_steer_max = 1.5;
+    // Initalize window index array for perception heuristics
+    for(int i = 0; i < window_width; i++)
+    {
+        window_index_array[i] = i;
+    }
+    // ========================================================================
 
+    // ========================================================================
+    // Initalize Shared Memory
+    // ========================================================================
     print("Starting Perception System...\n");
 
     // Acquire Shared Memory and Semaphore
@@ -105,19 +99,25 @@ int main(int argc, char **argv)
 
     // Clear Fault since ctrl runs first
     comm_prcp_transaction(&ctrl_cmd, &ctrl_telem);
+    // ========================================================================
 
+    // ========================================================================
+    // Initalize ZED Mini and Image Processing
+    // ========================================================================
+    // Configure ZED Mini Stereo Camera + IMU
     Camera zed;
 
-    // Set configuration parameters for the ZED
+    // Set configuration parameters for the ZED Camera
     InitParameters initParameters;
     initParameters.camera_resolution = RESOLUTION::VGA;
     initParameters.camera_fps = 100;
     initParameters.depth_mode = DEPTH_MODE::PERFORMANCE;
     initParameters.coordinate_system = COORDINATE_SYSTEM::RIGHT_HANDED_Y_UP; // OpenGL's coordinate system is right_handed
     initParameters.coordinate_units = UNIT::METER;
+    initParameters.sensors_required = true;
     parseArgs(argc,argv,initParameters);
 
-    // Open the camera
+    // Open the camera and handle any errors
     print("Opening connection to camera...\n");
     ERROR_CODE zed_error = zed.open(initParameters);
 
@@ -135,7 +135,7 @@ int main(int argc, char **argv)
     PositionalTrackingParameters positional_tracking_param;
     positional_tracking_param.enable_area_memory = true;
 
-    // enable Positional Tracking
+    // Enable Positional Tracking
     zed_error = zed.enablePositionalTracking(positional_tracking_param);
     if (zed_error != ERROR_CODE::SUCCESS) {
         print("Enabling positionnal tracking failed: ", zed_error);
@@ -143,37 +143,47 @@ int main(int argc, char **argv)
         return 1; // Quit if an error occurred
     }
 
+    // ZED Mini Pose Variables
     Pose zed_pose;
     POSITIONAL_TRACKING_STATE tracking_state;
 
     // Prepare new image size to retrieve half-resolution images
     Resolution image_size = zed.getCameraInformation().camera_resolution;
-    int new_width = image_size.width / 2;
-    int new_height = image_size.height / 2;
+    int image_width = image_size.width / 2;
+    int image_height = image_size.height / 2;
+    Resolution new_image_size(image_width, image_height);
 
-    Resolution new_image_size(new_width, new_height);
-
-    // To share data between sl::Mat and cv::Mat, use slMat2cvMat()    // Only the headers and pointer to the sl::Mat are copied, not the data itself
-    Mat image_zed(new_width, new_height, MAT_TYPE::U8_C4);
+    // To share data between sl::Mat and cv::Mat for BGR image
+    // Only the headers and pointer to the sl::Mat are copied, not the data itself
+    Mat image_zed(image_width, image_height, MAT_TYPE::U8_C4);
 
     // Create an OpenCV Mat that shares sl::Mat data
     cv::Mat image_ocv = slMat2cvMat(image_zed);
-    cv::Mat image_mask = cv::Mat::zeros(new_width, new_height, CV_8U);
-    cv::Mat image_res = cv::Mat::zeros(new_width, new_height, CV_8UC3);
 
-    // Create HSV image
-    cv::Mat image_hsv = cv::Mat::zeros(new_width, new_height, CV_8UC3);
+    // Create an OpenCV Mat for HSV image
+    cv::Mat image_hsv = cv::Mat::zeros(image_width, image_height, CV_8UC3);
 
-    Mat depth_image_zed(new_width, new_height, MAT_TYPE::U8_C4);
+    // Create an OpenCV Mat for lane color mask
+    cv::Mat image_mask = cv::Mat::zeros(image_width, image_height, CV_8U);
+
+    // Create an OpenCV Mat for perception system visualizer
+    cv::Mat image_prcp = cv::Mat::zeros(image_width, image_height, CV_8UC3);
+
+    // Create shared data between sl::Mat and cv::Mat for depth image
+    // Only the headers and pointer to the sl::Mat are copied, not the data itself
+    Mat depth_image_zed(image_width, image_height, MAT_TYPE::U8_C4);
     cv::Mat depth_image_ocv = slMat2cvMat(depth_image_zed);
+    // ========================================================================
 
-    int32_t mean = 0;
 
+    // ========================================================================
+    // Perception System Main Loop
+    // ========================================================================
     print("Starting Main Loop...\n");
 
-    // Main Loop
     while (prcp_run)
     {
+        // Clear faults and run
         if(ctrl_telem.mode == FAULT)
         {
             ctrl_cmd.mode = CLEARFAULT;
@@ -183,110 +193,120 @@ int main(int argc, char **argv)
             ctrl_cmd.mode = RUN;
         }
 
-        // Process Vision Data
+        // ========================================================================
+        // Acquire and process perception data
+        // ========================================================================
         if (zed.grab() == ERROR_CODE::SUCCESS)
         {
-            // One day we will get the pose of the camera relative to the world frame
-            // The function call below works, but we aren't quite ready for world frame
-            // tracking_state = zed.getPosition(zed_pose, REFERENCE_FRAME::WORLD);
+            // Get latest pose from ZED Mini
             tracking_state = zed.getPosition(zed_pose, REFERENCE_FRAME::CAMERA);
 
-            // Display translation and timestamp
-            // cout << "tx = " << zed_pose.getTranslation().tx;
-            // cout << ", ty = " << zed_pose.getTranslation().ty;
-            // cout << ", tz = " << zed_pose.getTranslation().tz;
-
-            // Retrieve the left image in sl::Mat
-            // The cv::Mat is automatically updated
+            // Retrieve the left image in sl::Mat, the cv::Mat is automatically updated
             zed.retrieveImage(image_zed, VIEW::LEFT, MEM::CPU, new_image_size);
             zed.retrieveImage(depth_image_zed, VIEW::DEPTH, MEM::CPU, new_image_size);
 
-            // Lane following
-            // --------------
-            image_res = cv::Mat::zeros(new_width, new_height, CV_8UC3);
+            // ========================================================================
+            // Lane following heuristics
+            // ========================================================================
 
-            // Convert image to hsv
+            // Blank perception visualizer
+            image_prcp = cv::Mat::zeros(image_width, image_height, CV_8UC3);
+
+            // Convert ZED image to hsv color space
             cv::cvtColor(image_ocv, image_hsv, cv::COLOR_BGR2HSV);
 
-            // Detect the object based on HSV Range Values
+            // Detect the yellow colored lanes using HSV range values for threshold
             inRange(image_hsv, cv::Scalar(low_H, low_S, low_V), cv::Scalar(high_H, high_S, high_V), image_mask);
 
-            // Bitwise-AND mask and original image
-            cv::bitwise_and(image_ocv, image_ocv, image_res, image_mask);
+            // Bitwise-AND mask the original image
+            cv::bitwise_and(image_ocv, image_ocv, image_prcp, image_mask);
 
-            for (uint32_t line_i = 0; line_i < line_n; line_i++)
+            // Iterate through the segmented rows of the scan window and find the weighted mean of each of them
+            for (uint32_t lane_i = 0; lane_i < LANE_N; lane_i++)
             {
-                line_y[line_i] = (window_height/line_n)*line_i + window_top;
-                line_y[0] = window_top;
+                lane_y[lane_i] = (WINDOW_HEIGHT/LANE_N)*lane_i + WINDOW_TOP;
+                lane_y[0] = WINDOW_TOP;
 
-                for (uint32_t col = window_left; col < window_right; col++)
+                for (uint32_t col = WINDOW_LEFT; col < WINDOW_RIGHT; col++)
                 {
                     window_histo_array[col] = 0;
 
-                    for (uint32_t row = line_y[line_i]; row < line_y[line_i]+(window_height/line_n); row++)
+                    for (uint32_t row = lane_y[lane_i]; row < lane_y[lane_i]+(WINDOW_HEIGHT/LANE_N); row++)
                     {
                         window_histo_array[col] += (uint32_t)image_mask.at<uchar>(row,col);
                     }
                 }
 
-                // Compute the weighted mean
-                line_x[line_i] = (int32_t)weightedMean(window_index_array, window_histo_array, window_width);
+                // Compute the weighted mean of the segmented row
+                lane_x[lane_i] = (int32_t)weightedMean(window_index_array, window_histo_array, window_width);
 
-                if(line_x[line_i] == 0)
+                // If the mean is 0, no lanes were found so steer forward
+                if(lane_x[lane_i] == 0)
                 {
-                    line_x[line_i] = window_center;
+                    lane_x[lane_i] = WINDOW_CENTER;
                 }
             }
 
-            drive_actual_vel = -1.0*zed_pose.getTranslation().tz;
+            // Calculate forward drive velocity
+            drive_vel_mea = -1.0*zed_pose.getTranslation().tz;
 
-            line_average = (uint32_t)((line_x[0] + line_x[1] + line_x[2])/3);
-            if(line_average >= window_center)
+            // Average each row segment
+            for(uint32_t s = 0; s < LANE_N; s++)
             {
-                line_average = (uint32_t)( (float)line_average + DRIVE_VEL_STR_GAIN*drive_actual_vel);
+                lane_average += (uint32_t)( (float)lane_x[s] / 3.0);
+            }
+
+            // Steer harder when driving faster
+            if(lane_average >= WINDOW_CENTER)
+            {
+                lane_average = (uint32_t)( (float)lane_average + DRIVE_VEL_MEA_STR_GAIN*drive_vel_mea);
             }
             else
             {
-                line_average = (uint32_t)( (float)line_average - DRIVE_VEL_STR_GAIN*drive_actual_vel);
+                lane_average = (uint32_t)( (float)lane_average - DRIVE_VEL_MEA_STR_GAIN*drive_vel_mea);
             }
 
-            line_drive_index = (int32_t)line_n - (int32_t)((float)line_n*(drive_actual_vel/drive_actual_max_vel));
+            // For visualization, calculate how far ahead to look and steer against
+            // and draw a circle around the index of that lane marker. Current algorithm
+            // does not use this variable to steer, but it's useful to plot for visualization.
+            lane_drive_index = (int32_t)LANE_N - (int32_t)((float)LANE_N*(drive_vel_mea/DRIVE_VEL_MEA_MAX));
 
-            if(line_drive_index >= (int32_t)line_n)
+            if(lane_drive_index >= (int32_t)LANE_N)
             {
-                line_drive_index = (int32_t)line_n-1;
+                lane_drive_index = (int32_t)LANE_N-1;
             }
-            if(line_drive_index < 0)
+            if(lane_drive_index < 0)
             {
-                line_drive_index = 0;
+                lane_drive_index = 0;
             }
 
-            for (uint32_t line_k = 0; line_k < line_n-1; line_k++)
+            // Draw an outline of the lane in red
+            for (uint32_t lane_k = 0; lane_k < LANE_N-1; lane_k++)
             {
-                if(line_k == line_drive_index)
+                if(lane_k == lane_drive_index)
                 {
-                    cv::line(image_res,cv::Point(line_x[line_k],line_y[line_k]),cv::Point(line_x[line_k+1],line_y[line_k+1]),cv::Scalar(0,255,0),5);
+                    cv::line(image_prcp,cv::Point(lane_x[lane_k],lane_y[lane_k]),cv::Point(lane_x[lane_k+1],lane_y[lane_k+1]),cv::Scalar(0,255,0),5);
                 }
                 else
                 {
-                    cv::line(image_res,cv::Point(line_x[line_k],line_y[line_k]),cv::Point(line_x[line_k+1],line_y[line_k+1]),cv::Scalar(0,0,255),5);
+                    cv::line(image_prcp,cv::Point(lane_x[lane_k],lane_y[lane_k]),cv::Point(lane_x[lane_k+1],lane_y[lane_k+1]),cv::Scalar(0,0,255),5);
                 }
             }
 
-            cv::line(image_res,cv::Point(line_average,window_top),cv::Point(line_average,window_bottom),cv::Scalar(255,0,0),5);
-            cv::circle(image_res,cv::Point(line_x[line_drive_index],line_y[line_drive_index]),5,cv::Scalar(0,255,0),3,8,0);
+            // Draw a green circle around the 'look ahead' distance along the lane
+            cv::circle(image_prcp,cv::Point(lane_x[lane_drive_index],lane_y[lane_drive_index]),5,cv::Scalar(0,255,0),3,8,0);
 
+            // Draw a blue line at the average of all the lanes
+            cv::line(image_prcp,cv::Point(lane_average,window_top),cv::Point(lane_average,window_bottom),cv::Scalar(255,0,0),5);
+
+            // Overlay the depth map and lane visualizer
             double alpha = 0.7; double beta;
             beta = ( 1.0 - alpha );
-            cv::addWeighted(image_res, alpha, depth_image_ocv, beta, 0.0, image_res);
-            // --------------
+            cv::addWeighted(image_prcp, alpha, depth_image_ocv, beta, 0.0, image_prcp);
+            // ========================================================================
 
-            // Display the left image from the cv::Mat object
-//            cv::imshow("Image", image_ocv);
-              cv::imshow("Res", image_res);
-//            cv::imshow("Depth", depth_image_ocv);
-//            cv::imshow("Prcp", image_mask);
-
+            // Display the processed image showing lane following and depth
+            cv::imshow("Res", image_prcp);
             cv::waitKey(1);
         }
         else
@@ -294,19 +314,30 @@ int main(int argc, char **argv)
             sleep_ms(1);
             print("Failed to grab frame!\n");
         }
+        // ========================================================================
 
+        // ========================================================================
+        // Update and send control command variables
+        // ========================================================================
+        // Incremement the heartbeat
+        ctrl_cmd.heartbeat++;
+
+        // Steer the robocar using the lane_average (not the lane_drive_index which doesn't work well)
+        ctrl_cmd.steer_pos = -1.0*CMD_STEER_MAX*(lane_average - WINDOW_CENTER)/((WINDOW_RIGHT - WINDOW_LEFT)/2);
+        ctrl_cmd.drive_vel = DRIVE_VEL;
+
+        // Print results
+        cout << ", drv vel = " << drive_vel_mea << ", drv line index = " << lane_drive_index;
+        cout << ", line mid = " << lane_x[lane_drive_index] << ", steer_pos = " << ctrl_cmd.steer_pos << endl;
+        
         // Send/Receive the latest telemetry/command data from shared memory to local memory
         comm_prcp_transaction(&ctrl_cmd, &ctrl_telem);
-
-        // Update ctrl_cmd struct
-        ctrl_cmd.heartbeat++;
-        ctrl_cmd.steer_pos = -1.0*cmd_steer_max*(line_average - (float)window_center)/(((float)window_right - (float)window_left)/2);
-        ctrl_cmd.drive_vel = 0.12;
-
-        cout << ", drv vel = " << drive_actual_vel << ", drv line index = " << line_drive_index;
-        cout << ", line mid = " << line_x[line_drive_index] << ", steer_pos = " << ctrl_cmd.steer_pos << endl;
+        // ========================================================================
     }
 
+    // ========================================================================
+    // Close perception system
+    // ========================================================================
     ctrl_cmd.mode = ESTOP;
     ctrl_cmd.heartbeat = 0;
     ctrl_cmd.steer_pos = 0.0;
@@ -321,6 +352,7 @@ int main(int argc, char **argv)
     // close the ZED
     zed.disablePositionalTracking();
     zed.close();
+    // ========================================================================
 
     return 0;
 }
