@@ -29,10 +29,12 @@
 
 #define LANE_N  3
 
-#define DRIVE_VEL_MAX       0.005
-#define DRIVE_VEL_STR_GAIN  2000.0
+#define DRIVE_VEL_MEA_MAX       0.005
+#define DRIVE_VEL_MEA_STR_GAIN  2000.0
 
 #define CMD_STEER_MAX       1.5
+
+#define DRIVE_VEL           0.12
 
 void parseArgs(int argc, char **argv,sl::InitParameters& param);
 cv::Mat slMat2cvMat(sl::Mat& input);

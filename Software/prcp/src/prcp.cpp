@@ -80,7 +80,7 @@ int main(int argc, char **argv)
     ctrl_telem.mode = FAULT;
 
     // Initalize window index array for perception heuristics
-    for(int i = 0; i < window_width; i++)
+    for(int i = 0; i < WINDOW_WIDTH; i++)
     {
         window_index_array[i] = i;
     }
@@ -216,7 +216,7 @@ int main(int argc, char **argv)
             cv::cvtColor(image_ocv, image_hsv, cv::COLOR_BGR2HSV);
 
             // Detect the yellow colored lanes using HSV range values for threshold
-            inRange(image_hsv, cv::Scalar(low_H, low_S, low_V), cv::Scalar(high_H, high_S, high_V), image_mask);
+            inRange(image_hsv, cv::Scalar(H_LOW, S_LOW, V_LOW), cv::Scalar(H_HIGH, S_HIGH, V_HIGH), image_mask);
 
             // Bitwise-AND mask the original image
             cv::bitwise_and(image_ocv, image_ocv, image_prcp, image_mask);
@@ -238,7 +238,7 @@ int main(int argc, char **argv)
                 }
 
                 // Compute the weighted mean of the segmented row
-                lane_x[lane_i] = (int32_t)weightedMean(window_index_array, window_histo_array, window_width);
+                lane_x[lane_i] = (int32_t)weightedMean(window_index_array, window_histo_array, WINDOW_WIDTH);
 
                 // If the mean is 0, no lanes were found so steer forward
                 if(lane_x[lane_i] == 0)
@@ -297,7 +297,7 @@ int main(int argc, char **argv)
             cv::circle(image_prcp,cv::Point(lane_x[lane_drive_index],lane_y[lane_drive_index]),5,cv::Scalar(0,255,0),3,8,0);
 
             // Draw a blue line at the average of all the lanes
-            cv::line(image_prcp,cv::Point(lane_average,window_top),cv::Point(lane_average,window_bottom),cv::Scalar(255,0,0),5);
+            cv::line(image_prcp,cv::Point(lane_average,WINDOW_TOP),cv::Point(lane_average,WINDOW_BOTTOM),cv::Scalar(255,0,0),5);
 
             // Overlay the depth map and lane visualizer
             double alpha = 0.7; double beta;
