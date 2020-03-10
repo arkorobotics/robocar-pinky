@@ -243,7 +243,7 @@ int main(int argc, char **argv)
                 // If the mean is 0, no lanes were found so steer forward
                 if(lane_x[lane_i] == 0)
                 {
-                    lane_x[lane_i] = WINDOW_CENTER;
+                    lane_x[lane_i] = CMD_STEER_BIAS;
                 }
             }
 
@@ -255,7 +255,7 @@ int main(int argc, char **argv)
 
             for(uint32_t s = 0; s < LANE_N; s++)
             {
-                lane_average += (uint32_t)( (float)lane_x[s] / 3.0);
+                lane_average += (uint32_t)( (float)lane_x[s] / (float)LANE_N);
             }
 
             // Steer harder when driving faster
@@ -308,8 +308,8 @@ int main(int argc, char **argv)
             // ========================================================================
 
             // Display the processed image showing lane following and depth
-            cv::imshow("Res", image_prcp);
-            cv::waitKey(1);
+//            cv::imshow("Res", image_prcp);
+//            cv::waitKey(1);
         }
         else
         {

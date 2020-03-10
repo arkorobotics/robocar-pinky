@@ -14,7 +14,7 @@
 #define WINDOW_WIDTH (WINDOW_RIGHT - WINDOW_LEFT)
 #define WINDOW_CENTER (WINDOW_WIDTH / 2)
 
-#define WINDOW_TOP 130
+#define WINDOW_TOP 120
 #define WINDOW_BOTTOM 175
 #define WINDOW_HEIGHT (WINDOW_BOTTOM - WINDOW_TOP)
 
@@ -27,14 +27,15 @@
 #define V_LOW   110
 #define V_HIGH  255
 
-#define LANE_N  3
+#define LANE_N  1
 
 #define DRIVE_VEL_MEA_MAX       0.005
-#define DRIVE_VEL_MEA_STR_GAIN  2000.0
+#define DRIVE_VEL_MEA_STR_GAIN  0500.0
 
-#define CMD_STEER_MAX       1.5
+#define CMD_STEER_MAX       1.0
+#define CMD_STEER_BIAS      WINDOW_CENTER + 20
 
-#define DRIVE_VEL           0.12
+#define DRIVE_VEL           0.15
 
 void parseArgs(int argc, char **argv,sl::InitParameters& param);
 cv::Mat slMat2cvMat(sl::Mat& input);
